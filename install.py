@@ -172,8 +172,8 @@ class Installer:
         print('Updating package index...')
         self.tlmgr('update', '--self')
 
-        print('Creating activation script...')
-        self.create_activate_sh()
+        print('Creating activation scripts...')
+        self.create_activate_files()
 
     def install_tex_packages(self, packages: Iterable[str]):
         self.tlmgr('install', *packages)
@@ -196,11 +196,12 @@ class Installer:
         subprocess.call(['./tlmgr'] + list(args),
                         cwd=self.profile.tinytex_bin())
 
-    def create_activate_sh(self):
-        filepath = os.path.join(self.profile.target, 'activate')
-        script_str = self.profile.sh_activate_script()
-        with open(filepath, 'w+') as f:
-            f.write(script_str)
+    def create_activate_files(self):
+        for s, f in [(self.profile.sh_activate_script(), 'activate'),
+                     (self.profile.ps1_activate_script(), 'activate.ps1')]:
+            filepath = os.path.join(self.profile.target, f)
+            with open(filepath, 'w+') as file:
+                file.write(s)
 
     def tinytex_exists(self) -> bool:
         return os.path.exists(self.profile.tinytex_dir())
@@ -241,6 +242,10 @@ class InstallerProfile:
     def sh_activate_script(self) -> str:
         bin = os.path.abspath(self.bin_dir())
         return SH_ACTIVATE_SCRIPT_FMT.format(bin=bin)
+
+    def ps1_activate_script(self) -> str:
+        bin = os.path.abspath(self.bin_dir())
+        return PS1_ACTIVATE_SCRIPT_FMT.format(bin=bin)
 
 
 class Ext(enum.Enum):
@@ -329,7 +334,6 @@ deactivate() {{
         unset _OLD_VIRTUAL_PS1
     fi
 
-    unset VIRTUAL_ENV
     if [ ! "${{1:-}}" = "nondestructive" ] ; then
     # Self destruct!
         unset -f deactivate
@@ -349,6 +353,36 @@ export PATH
 if [ -n "${{BASH:-}}" -o -n "${{ZSH_VERSION:-}}" ] ; then
     hash -r
 fi
+"""
+
+PS1_ACTIVATE_SCRIPT_FMT = """
+$script:THIS_PATH = $myinvocation.mycommand.path
+$script:BASE_DIR = Split-Path (Resolve-Path "$THIS_PATH/..") -Parent
+
+function global:deactivate([switch] $NonDestructive) {{
+    if (Test-Path variable:_OLD_VIRTUAL_PATH) {{
+        $env:PATH = $variable:_OLD_VIRTUAL_PATH
+        Remove-Variable "_OLD_VIRTUAL_PATH" -Scope global
+    }}
+
+    if (Test-Path function:_old_virtual_prompt) {{
+        $function:prompt = $function:_old_virtual_prompt
+        Remove-Item function:\_old_virtual_prompt
+    }}
+
+    if (!$NonDestructive) {{
+        # Self destruct!
+        Remove-Item function:deactivate
+        Remove-Item function:pydoc
+    }}
+}}
+
+# unset irrelevant variables
+deactivate -nondestructive
+
+New-Variable -Scope global -Name _OLD_VIRTUAL_PATH -Value $env:PATH
+
+$env:PATH = "{bin}:" + $env:PATH
 """
 
 
