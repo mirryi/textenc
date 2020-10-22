@@ -1,9 +1,11 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
 import enum
 import os
 import shutil
+import stat
 import subprocess
 import sys
 import tarfile
@@ -99,9 +101,8 @@ class Installer:
 
             print('Unpacking release archive...')
             if ext is Ext.TARGZ or ext is Ext.TGZ:
-                tar = tarfile.open(archive_path, 'r:gz')
-                tar.extractall(target)
-                tar.close()
+                with tarfile.open(archive_path, 'r:gz') as tar:
+                    tar.extractall(target)
             else:
                 with zipfile.ZipFile(archive_path) as archive:
                     archive.extractall(target)
@@ -122,6 +123,9 @@ class Installer:
         print('Creating TinyTeX bin symlinks...')
         self.tlmgr_symlink_bin()
 
+        print('Creating activation script...')
+        self.create_activate_sh()
+
     def tlmgr_set_bin(self):
         bin_path_full = os.path.abspath(self.profile.bin_dir())
         subprocess.call(['./tlmgr', 'option', 'sys_bin',
@@ -130,6 +134,12 @@ class Installer:
     def tlmgr_symlink_bin(self):
         subprocess.call(['./tlmgr', 'path', 'add'],
                         cwd=self.profile.tinytex_bin())
+
+    def create_activate_sh(self):
+        filepath = os.path.join(self.profile.target, 'activate')
+        script_str = self.profile.sh_activate_script()
+        with open(filepath, 'w+') as f:
+            f.write(script_str)
 
     def check_for_existing(self) -> bool:
         return os.path.exists(self.profile.tinytex_dir())
@@ -178,6 +188,10 @@ class InstallerProfile:
         return ('https://github.com/yihui/tinytex-releases/releases/download/'
                 '{version}/{release}').format(version=self.version,
                                               release=release)
+
+    def sh_activate_script(self) -> str:
+        bin = os.path.abspath(self.bin_dir())
+        return SH_ACTIVATE_SCRIPT_FMT.format(bin=bin)
 
 
 class Ext(enum.Enum):
@@ -242,6 +256,51 @@ class OS(enum.Enum):
         elif OS.is_windows():
             return OS.WIN32
         return None
+
+
+SH_ACTIVATE_SCRIPT_FMT = """#!/bin/sh
+deactivate() {{
+    # reset old environment variables
+    if [ -n "${{_OLD_VIRTUAL_PATH:-}}" ]; then
+        PATH="${{_OLD_VIRTUAL_PATH:-}}"
+        export PATH
+        unset _OLD_VIRTUAL_PATH
+    fi
+
+    # This should detect bash and zsh, which have a hash command that must
+    # be called to get it to forget past commands.  Without forgetting
+    # past commands the $PATH changes we made may not be respected
+    if [ -n "${{BASH:-}}" -o -n "${{ZSH_VERSION:-}}" ] ; then
+        hash -r
+    fi
+
+    if [ -n "${{_OLD_VIRTUAL_PS1:-}}" ] ; then
+        PS1="${{_OLD_VIRTUAL_PS1:-}}"
+        export PS1
+        unset _OLD_VIRTUAL_PS1
+    fi
+
+    unset VIRTUAL_ENV
+    if [ ! "${{1:-}}" = "nondestructive" ] ; then
+    # Self destruct!
+        unset -f deactivate
+    fi
+}}
+
+# unset irrelevant variables
+deactivate nondestructive
+
+_OLD_VIRTUAL_PATH="$PATH"
+PATH="{bin}:$PATH"
+export PATH
+
+# This should detect bash and zsh, which have a hash command that must
+# be called to get it to forget past commands.  Without forgetting
+# past commands the $PATH changes we made may not be respected
+if [ -n "${{BASH:-}}" -o -n "${{ZSH_VERSION:-}}" ] ; then
+    hash -r
+fi
+"""
 
 
 if __name__ == '__main__':
