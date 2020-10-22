@@ -2,3 +2,4 @@ beamer
 beamertheme-metropolis
 pgfopts
 grfext
+fira
