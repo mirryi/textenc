@@ -138,7 +138,7 @@ class Installer:
                 shutil.rmtree(self.profile.tinytex_dir())
             else:
                 print('skipping installation...')
-            skip_install = True
+                skip_install = True
 
         if not skip_install:
             try:
