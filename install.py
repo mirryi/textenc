@@ -5,16 +5,17 @@ import argparse
 import enum
 import os
 import shutil
-import stat
 import subprocess
 import sys
 import tarfile
 import urllib.request
 import zipfile
+from typing import Iterable
 from typing import Optional
 
 DEFAULT_INSTALL = 'local'
 DEFAULT_BIN = os.path.join(DEFAULT_INSTALL, 'bin')
+DEFAULT_TEXPACKAGES = 'packages.txt'
 TINYTEX_VERSION = 'v2020.10'
 
 cli = argparse.ArgumentParser('build.py')
@@ -48,13 +49,28 @@ def argument(*name_or_flags, **kwargs):
     return ([*name_or_flags], kwargs)
 
 
-install_args = [
+shared_args = [
+    argument('--os', dest='use_os', required=False,
+             choices=['linux', 'freebsd', 'darwin', 'win32'],
+             help='use alternate os installation'),
     argument('-t', '--target', default=DEFAULT_INSTALL,
              metavar='DIR',
              help='installation target directory'),
+]
+
+install_args = shared_args + [
     argument('--tinytex-version', default=TINYTEX_VERSION,
              metavar='VERSION',
              help='specify alternate TinyTeX version'),
+    argument('--no-packages', dest='no_packages', action='store_true',
+             help='do not install packages from list'),
+    argument('--packages-only', dest='packages_only', action='store_true',
+             help='only install packages from list; overrides --no-packages'),
+    argument('--package-list', dest='package_list',
+             default=DEFAULT_TEXPACKAGES, metavar='FILE',
+             help='specify alternate TeX packages list'),
+    argument('--extra-packages', dest='extra_packages',
+             help='specify extra TeX packages to install'),
     argument('--reinstall', action='store_true',
              help='remove previous installation and reinstall')
 ]
@@ -62,28 +78,62 @@ install_args = [
 
 @subcommand(args=install_args)
 def install(args):
-    o = OS.get()
-
-    profile = InstallerProfile(
-        args.tinytex_version, o, args.target, args.reinstall)
+    profile = profile_from_args(args)
     installer = Installer(profile)
-    installer.install()
+
+    if not args.packages_only:
+        installer.install_tinytex(args.tinytex_version, args.reinstall)
+        if not args.no_packages:
+            install_packages(installer, args.package_list,
+                             args.extra_packages)
+    else:
+        install_packages(installer, args.package_list,
+                         args.extra_packages)
+
+
+def install_packages(installer: Installer, list_path: str,
+                     extra: Optional[str]):
+    print("Installing packages from {}...".format(list_path))
+    with open(list_path, 'r') as file:
+        packages = [line.strip() for line in file]
+    installer.install_tex_packages(packages)
+
+    if extra is not None:
+        print("Installing extra packages...")
+        installer.install_tex_packages(extra.split(','))
+
+
+regenerate_args = shared_args
+
+
+@subcommand(args=regenerate_args)
+def regenerate(args):
+    profile = profile_from_args(args)
+    installer = Installer(profile)
+    installer.regenerate_symlinks()
+
+
+def profile_from_args(args) -> InstallerProfile:
+    if args.use_os is not None:
+        use_os = args.use_os
+    else:
+        use_os = OS.get()
+    return InstallerProfile(use_os, args.target)
 
 
 class Installer:
     def __init__(self, profile: InstallerProfile):
         self.profile = profile
 
-    def install(self):
+    def install_tinytex(self, tinytex_version: str, reinstall: bool):
         target = self.profile.target
-        version = self.profile.version
         ext = self.profile.os.ext()
 
         print('Checking for existing installation...')
         skip_install = False
-        if self.check_for_existing():
+        if self.tinytex_exists():
             print('TinyTeX found, ', end='')
-            if self.profile.reinstall:
+            if reinstall:
                 print('removing...')
                 shutil.rmtree(self.profile.tinytex_dir())
             else:
@@ -96,8 +146,8 @@ class Installer:
             except FileExistsError:
                 pass
 
-            print('Downloading TinyTeX release {}...'.format(version))
-            archive_path = self.download_tinytex_release()
+            print('Downloading TinyTeX release {}...'.format(tinytex_version))
+            archive_path = self.download_tinytex_release(tinytex_version)
 
             print('Unpacking release archive...')
             if ext is Ext.TARGZ or ext is Ext.TGZ:
@@ -108,8 +158,8 @@ class Installer:
                     archive.extractall(target)
 
             print('Renaming TinyTeX installation directory...')
-            os.rename(self.profile.tinytex_unpacked_dir(),
-                      self.profile.tinytex_dir())
+            unpacked_dir = os.path.join(self.profile.target, '.TinyTeX')
+            os.rename(unpacked_dir, self.profile.tinytex_dir())
 
             print('Removing TinyTeX archive...')
             try:
@@ -117,22 +167,35 @@ class Installer:
             except FileNotFoundError:
                 pass
 
+        self.regenerate_symlinks()
+
+        print('Creating activation script...')
+        self.create_activate_sh()
+
+    def install_tex_packages(self, packages: Iterable[str]):
+        for p in packages:
+            self.install_tex_package(p)
+
+    def install_tex_package(self, name: str):
+        print('Installing package \'{}\'...'.format(name))
+        self.tlmgr('install', name)
+
+    def regenerate_symlinks(self):
         print('Setting tlmgr sys_bin...')
         self.tlmgr_set_bin()
 
         print('Creating TinyTeX bin symlinks...')
         self.tlmgr_symlink_bin()
 
-        print('Creating activation script...')
-        self.create_activate_sh()
-
     def tlmgr_set_bin(self):
         bin_path_full = os.path.abspath(self.profile.bin_dir())
-        subprocess.call(['./tlmgr', 'option', 'sys_bin',
-                         bin_path_full], cwd=self.profile.tinytex_bin())
+        self.tlmgr('option', 'sys_bin', bin_path_full)
 
     def tlmgr_symlink_bin(self):
-        subprocess.call(['./tlmgr', 'path', 'add'],
+        self.tlmgr('path', 'add')
+
+    def tlmgr(self, *args: str):
+        subprocess.call(['./tlmgr'] + list(args),
                         cwd=self.profile.tinytex_bin())
 
     def create_activate_sh(self):
@@ -141,11 +204,15 @@ class Installer:
         with open(filepath, 'w+') as f:
             f.write(script_str)
 
-    def check_for_existing(self) -> bool:
+    def tinytex_exists(self) -> bool:
         return os.path.exists(self.profile.tinytex_dir())
 
-    def download_tinytex_release(self) -> str:
-        url = self.profile.tinytex_release_url()
+    def download_tinytex_release(self, version) -> str:
+        release_name = 'TinyTeX-1-{version}.{ext}'.format(
+            version=version, ext=self.profile.os.ext())
+        url = ('https://github.com/yihui/tinytex-releases/releases/download/'
+               '{version}/{release}').format(version=version,
+                                             release=release_name)
         dest = os.path.join(self.profile.target,
                             'tinytex.{}'.format(self.profile.os.ext()))
         urllib.request.urlretrieve(url, dest)
@@ -153,12 +220,9 @@ class Installer:
 
 
 class InstallerProfile:
-    def __init__(self, version: str, os: OS, target: str,
-                 reinstall: bool, bin_dir=None):
-        self.version = version
+    def __init__(self, os: OS, target: str, bin_dir=None):
         self.os = os
         self.target = target
-        self.reinstall = reinstall
         self.bin = bin_dir
 
     def binary(self, name: str) -> str:
@@ -175,19 +239,6 @@ class InstallerProfile:
 
     def tinytex_dir(self) -> str:
         return os.path.join(self.target, 'tinytex')
-
-    def tinytex_unpacked_dir(self) -> str:
-        return os.path.join(self.target, '.TinyTeX')
-
-    def tinytex_release_name(self) -> str:
-        return 'TinyTeX-1-{version}.{ext}'.format(
-            version=self.version, ext=self.os.ext())
-
-    def tinytex_release_url(self) -> str:
-        release = self.tinytex_release_name()
-        return ('https://github.com/yihui/tinytex-releases/releases/download/'
-                '{version}/{release}').format(version=self.version,
-                                              release=release)
 
     def sh_activate_script(self) -> str:
         bin = os.path.abspath(self.bin_dir())
