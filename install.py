@@ -96,11 +96,11 @@ def install_packages(installer: Installer, list_path: str,
     print("Installing packages from {}...".format(list_path))
     with open(list_path, 'r') as file:
         packages = [line.strip() for line in file]
-    installer.install_tex_packages(packages)
 
     if extra is not None:
-        print("Installing extra packages...")
-        installer.install_tex_packages(extra.split(','))
+        packages += extra.split(',')
+
+    installer.install_tex_packages(packages)
 
 
 regenerate_args = shared_args
@@ -169,16 +169,14 @@ class Installer:
 
         self.regenerate_symlinks()
 
+        print('Updating package index...')
+        self.tlmgr('update', '--self')
+
         print('Creating activation script...')
         self.create_activate_sh()
 
     def install_tex_packages(self, packages: Iterable[str]):
-        for p in packages:
-            self.install_tex_package(p)
-
-    def install_tex_package(self, name: str):
-        print('Installing package \'{}\'...'.format(name))
-        self.tlmgr('install', name)
+        self.tlmgr('install', *packages)
 
     def regenerate_symlinks(self):
         print('Setting tlmgr sys_bin...')
