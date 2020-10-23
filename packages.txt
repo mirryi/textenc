@@ -1,5 +1,6 @@
 beamer
 beamertheme-metropolis
+subfiles
 fira
 grfext
 import
