@@ -5,3 +5,4 @@ fira
 grfext
 import
 pgfopts
+tikz

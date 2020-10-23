@@ -1,12 +1,117 @@
-\documentclass[0-index.tex]{subfiles}
+% -----------------------------------------------
+\documentclass[../index.tex]{subfiles}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows,shapes.gates.logic.US,shapes.gates.logic.IEC,calc}
+% -----------------------------------------------
 
 \begin{document}
+\newcommand{\indentt}{\hspace*{2em}}
+\newcommand{\sectiontitle}{}
+\newcommand{\currenttitle}{}
 
-\section{It's just text, right?}
+% -----------------------------------------------
+\renewcommand{\sectiontitle}{It's just text, right?}
+\section{\sectiontitle}
 
-\begin{frame}{Some questions to start}
-  \only<1>{What's a string?}
-  \only<2>{What's a character?}
+% ---------------------------
+\begin{frame}{\sectiontitle}
+  \only<+>{What's a string?}
+  \only<+>{What's a character?}
 \end{frame}
+
+
+% -----------------------------------------------
+\renewcommand{\sectiontitle}{A little bit of linguistics and typography}
+\section{\sectiontitle}
+
+% ---------------------------
+\begin{frame}{\sectiontitle}
+  \only<+->{A \textbf{character} is the basic symbol used to write or print a language} \\
+  \only<+->{A \textbf{character set} is a collection of characters to write a language} \\
+  \only<+->{A \textbf{glyph} is the \textit{visual} representation of a character}
+\end{frame}
+
+
+% -----------------------------------------------
+\renewcommand{\sectiontitle}{A memory refresher}
+\section{\sectiontitle}
+% Before we get into how computers handle text, we need to talk about memory.
+
+% ---------------------------
+\renewcommand{\currenttitle}{Bits and bytes}
+\begin{frame}{\currenttitle}
+% Computers store information bits, a portmanteau of "binary digit", which represent an "on"
+% and an "off" state in the abstract sense.
+%
+% In the physical device, this might be two stable states of a flip-flop, two positions of an
+% electrical switch, two distinct voltage or current levels allowed by a circuit, two distinct
+% levels of light intensity.
+  \only<+->{Computers store information in \textbf{bits} (0 or 1 / \texttt{TRUE} or \texttt{FALSE})} \\
+\end{frame}
+
+% ---------------------------
+\begin{frame}{\currenttitle}
+% We can do binary logic operations on bits, which are the basis for other operations such as
+% addition and subtraction.
+  \newcommand{\false}{\texttt{0}}
+  \newcommand{\true}{\texttt{1}}
+  \newcommand{\m}[1]{\texttt{#1}}
+
+  We can do binary logic and arithmetic with these:
+
+  \begin{table}
+    \begin{tabular}{c c c c}
+      \m{a} & \m{b} & op & result \\
+      \hline{}
+      \false{} & \true{} & \m{AND} & \false{} \\
+      \false{} & \true{} & \m{OR} & \true{} \\
+      \true{} & \true{} & \m{NAND} & \false{} \\
+      \false{} & \false{} & \m{NOR} & \false{} \\
+      \true{} & \true{} & \m{XOR} & \false{}
+    \end{tabular}
+    \caption{Logic binop inputs and results}
+  \end{table}
+\end{frame}
+
+% ---------------------------
+% We often see these operations visualized as logic gates.
+\begin{frame}{\currenttitle}
+  We often see these operations visualized as logic gates:
+  \begin{figure}
+    \begin{circuitikz} \draw
+      (0,0) node[xor port] (xor) {}
+      (2,0) node[and port] (and) {};
+    \end{circuitikz}
+    \caption{XOR and AND logic gates}
+  \end{figure}
+\end{frame}
+
+% ---------------------------
+\begin{frame}{\currenttitle}
+  \only<+->{A \textbf{byte} is equal to 8 bits} \\
+\end{frame}
+
+
+% -----------------------------------------------
+\renewcommand{\sectiontitle}{ASCII \textrightarrow{} Unicode}
+\section{\sectiontitle}
+% There were other text encodings before ASCII, but ASCII is one that is still used sometimes.
+% Today, the international standard of text encoding is Unicode.
+%
+% We'll examine the ASCII standard and its limitations, and then look at how Unicode attempts
+% to ameliorate these issues.
+
+% ---------------------------
+\begin{frame}{1968 \textendash{} ASCII}
+  \only{}
+\end{frame}
+
+\begin{frame}{How does Unicode define a character?}
+  \only{}
+\end{frame}
+
+
+% -----------------------------------------------
 
 \end{document}
