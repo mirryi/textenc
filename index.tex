@@ -3,7 +3,13 @@
 \documentclass{beamer}
 \usetheme{metropolis}
 
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
+
 \usepackage{subfiles}
+
+\newcommand{\sectiontitle}{}
+\newcommand{\currenttitle}{}
 
 % -----------------------------------------------
 % Title
@@ -18,5 +24,8 @@
 
 \maketitle
 \subfile{sections/0-intro.tex}
+\subfile{sections/1-linguistics.tex}
+\subfile{sections/2-memory.tex}
+\subfile{sections/3-ascii.tex}
 
 \end{document}

@@ -1,0 +1,84 @@
+
+% -----------------------------------------------
+\documentclass[../index.tex]{subfiles}
+
+% -----------------------------------------------
+
+\begin{document}
+
+% -----------------------------------------------
+\renewcommand{\sectiontitle}{A memory refresher}
+\section{\sectiontitle}
+% Before we get into how computers handle text, we need to talk about memory.
+
+% ---------------------------
+\renewcommand{\currenttitle}{Bits and bytes}
+\begin{frame}{\currenttitle}
+% Computers store information bits, a portmanteau of "binary digit", which represent an "on"
+% and an "off" state in the abstract sense.
+%
+% In the physical device, this might be two stable states of a flip-flop, two positions of an
+% electrical switch, two distinct voltage or current levels allowed by a circuit, two distinct
+% levels of light intensity.
+  \only<+->{Computers store information in \textbf{bits} (0 or 1 / \texttt{TRUE} or \texttt{FALSE})} \\
+\end{frame}
+
+% ---------------------------
+\begin{frame}{\currenttitle}
+% We can do binary logic operations on bits, which are the basis for other operations such as
+% addition and subtraction.
+  \newcommand{\false}{\texttt{0}}
+  \newcommand{\true}{\texttt{1}}
+
+  We can do binary logic and arithmetic with these:
+
+  \begin{table}
+    \begin{tabular}{c c c c}
+      a & b & op & result \\
+      \hline{}
+      \false{} & \true{} & AND & \false{} \\
+      \false{} & \true{} & OR & \true{} \\
+      \true{} & \true{} & NAND & \false{} \\
+      \false{} & \false{} & NOR & \false{} \\
+      \true{} & \true{} & XOR & \false{}
+    \end{tabular}
+    \caption{Logic binop inputs and results}
+  \end{table}
+\end{frame}
+
+% ---------------------------
+\begin{frame}{\currenttitle}
+% Anyway, that's not really relevant to us at the moment.
+% As you probably know, a byte is equal to 8 bits.
+  A \textbf{byte} is equal to 8 bits
+\end{frame}
+
+% ---------------------------
+\begin{frame}{\currenttitle}
+% Think of some data types that you've used in your code.
+  \begin{table}
+    \begin{tabular}{c c c c}
+      type & description & bits & bytes \\
+      \hline{}
+      boolean & true / false flag & 1 & 1\footnotemark \\
+      char & 16-bit character & 16 & 2 \\
+      short & 16-bit integer & 16 & 2 \\
+      int & 32-bit integer & 32 & 4 \\
+      long & 64-bit integer & 64 & 8 \\
+      float & 32-bit floating-point & 32 & 4 \\
+      double & 64-bit floating-point & 64 & 8 \\
+    \end{tabular}
+    \caption{Sizes of Java data types}
+  \end{table}
+
+  \footnotetext{In Java, booleans usually take up a byte for speed}
+\end{frame}
+
+% ---------------------------
+\begin{frame}{\currenttitle}
+\end{frame}
+
+
+% -----------------------------------------------
+
+\end{document}
