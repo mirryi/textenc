@@ -49,12 +49,29 @@
 \begin{frame}{\currenttitle}
 % Anyway, that's not really relevant to us at the moment.
 % As you probably know, a byte is equal to 8 bits.
+% This means there are 2^8 possible values contained in a single byte of data.
+%
+% In modern computers, memory is indexed by bytes. So while the bit is the smallest unit,
+% you're typically going to be concerned mostly with bytes.
   A \textbf{byte} is equal to 8 bits \\
+
+  Possible values are in the interval [$0_{10}$, $255_{10}$]
 \end{frame}
 
 % ---------------------------
 \begin{frame}{\currenttitle}
 % Think of some data types that you've used in your code.
+% This table has some of the sizes of Java primitives.
+%
+% An int in Java is a 32-bit integer, so it can store values from -2^31 to 2^31 - 1.
+% Because Java doesn't distinguish between unsigned and signed number values like C, Rust,
+% or other langauges do, the first bit is dedicated to indicating the sign.
+%
+% I'm not really going to get into how floating-point number types like float or double.
+%
+% Booleans, which are just a true/false value, should theoretically take up a single bit,
+% but note that JVM stores booleans to take up a byte. That's because memory is usually
+% indexed by bytes, increasing speed at the cost of a little bit of storage overhead.
   \begin{table}
     \begin{tabular}{c c c c}
       type & description & bits & bytes \\
@@ -74,8 +91,34 @@
 \end{frame}
 
 % ---------------------------
+\renewcommand{\currenttitle}{Memory storage}
 \begin{frame}{\currenttitle}
+% So how are these data stored in memory?
+\end{frame}
 
+% ---------------------------
+\renewcommand{\currenttitle}{Big and little endianness}
+\begin{frame}{\currenttitle}
+% A type like Java's short, which is 32-bits, is going to take up 4 bytes of memory space.
+% Because of historical reasons, this can pose problems.
+%
+% Let's say you have the decimal integer 168496141. In binary, this is a very long value.
+% We'll instead refer to it by its hexadecimal form: 0x0A0B0C0D.
+
+  $168496141_{10}$ = 0x0A0B0C0D\textsubscript{h}
+
+\end{frame}
+
+% ---------------------------
+\begin{frame}{\currenttitle}
+% If you're curious about the etymology of 'endian', it comes from the 1762 satirical novel
+% Gulliver's Travels, by Jonathan Swift.
+% In one of Gulliver's journeys, he encounters a land of beings named Lilliputians.
+% The Lilliputians have divided into two sects, one that holds the belief that the shell of
+% a boiled egg should be broken from the big end, and the other from the little end.
+% They're called big-endian and little-endian, and computer scientists took those terms.
+% Lilliputian has also made it into the English dictionary and has the meaning tiny or trivial.
+  \textbf{Endianness} indicates the order in which memory is read
 \end{frame}
 
 
