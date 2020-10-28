@@ -2,4 +2,4 @@
 $out_dir = 'target';
 
 $pdf_mode = 1;
-$pdflatex = 'xelatex -interaction=nonstopmode';
+$pdflatex = 'lualatex -interaction=nonstopmode';
