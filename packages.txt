@@ -1,11 +1,12 @@
 beamer
 beamertheme-metropolis
 bytefield
-subfiles
+enumitem
 fira
 grfext
 import
 luacode
 luatexbase
 pgfopts
+subfiles
 tikz
