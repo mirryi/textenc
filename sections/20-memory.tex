@@ -1,5 +1,7 @@
 % -----------------------------------------------
+% chktex-file 44
 \documentclass[../index.tex]{subfiles}
+\renewcommand{\subdir}{.}
 
 % -----------------------------------------------
 
@@ -22,18 +24,15 @@
   Computers store information in \textbf{bits} (0 or 1 / \texttt{TRUE} or \texttt{FALSE})
   \vspace*{2em}
 
-  \begin{center}
-    \begin{figure}
-      \begin{table}
-        \begin{tabular}{c|c|c|c|c|c|c|c|c|c}
-          \hline
-          \dots & 1 & 1 & 0 & 1 & 0 & 1 & 1 & 0 & \dots &
-          \hline
-        \end{tabular}
-      \end{table}
-      \caption{Memory sketch}
-    \end{figure}
-  \end{center}
+  \begin{table}
+    \centering
+    \begin{tabular}{c|c|c|c|c|c|c|c|c|c}
+      \hline
+      \dots & 1 & 1 & 0 & 1 & 0 & 1 & 1 & 0 & \dots \\
+      \hline
+    \end{tabular}
+    \caption{Memory sketch}
+  \end{table}
 \end{frame}
 
 % ---------------------------
@@ -48,12 +47,12 @@
   \begin{table}
     \begin{tabular}{c c c c}
       a & b & op & result \\
-      \hline{}
-      \false{} & \true{} & AND & \false{} \\
-      \false{} & \true{} & OR & \true{} \\
-      \true{} & \true{} & NAND & \false{} \\
-      \false{} & \false{} & NOR & \false{} \\
-      \true{} & \true{} & XOR & \false{}
+      \hline
+      \false  & \true   & AND   & \false  \\ % chktex 1
+      \false  & \true   & OR    & \true   \\ % chktex 1
+      \true   & \true   & NAND  & \false  \\ % chktex 1
+      \false  & \false  & NOR   & \false  \\ % chktex 1
+      \true   & \true   & XOR   & \false     % chktex 1
     \end{tabular}
     \caption{Logic binop inputs and results}
   \end{table}
@@ -76,18 +75,15 @@
 
   This means possible values are in the interval [$0_{10}$, $255_{10}$] \\
 
-  \begin{center}
-    \begin{figure}
-      \begin{table}
-        \begin{tabular}{c|c|c|c|c|c|c|c}
-          \hline
-          1 & 0 & 0 & 1 & 1 & 0 & 1 & 0 &
-          \hline
-        \end{tabular}
-      \end{table}
-      \caption{A byte representing the value of 154\textsubscript{10}, or 0x9A}
-    \end{figure}
-  \end{center}
+  \begin{table}
+    \centering
+    \begin{tabular}{c|c|c|c|c|c|c|c}
+      \hline
+      1 & 0 & 0 & 1 & 1 & 0 & 1 & 0 \\
+      \hline
+    \end{tabular}
+    \caption{A byte representing the value of 154\textsubscript{10}, or \hex{9A}}
+  \end{table}
 
   We can (and will) use 2 hexadecimal (base 16) numbers to represent a single byte
 \end{frame}
@@ -109,14 +105,14 @@
   \begin{table}
     \begin{tabular}{c c c c}
       type & description & bits & bytes \\
-      \hline{}
-      boolean & true / false flag & 1 & 1\footnotemark \\
+      \hline
+      boolean & true / false flag & 1 & 1\footnotemark{} \\
       char & 16-bit character & 16 & 2 \\
       short & 16-bit integer & 16 & 2 \\
       int & 32-bit integer & 32 & 4 \\
       long & 64-bit integer & 64 & 8 \\
       float & 32-bit floating-point & 32 & 4 \\
-      double & 64-bit floating-point & 64 & 8 \\
+      double & 64-bit floating-point & 64 & 8
     \end{tabular}
     \caption{Sizes of Java data types}
   \end{table}
@@ -130,8 +126,8 @@
 % A type like Java's short, which is 32-bits, is going to take up 4 bytes of memory space.
 % Because of historical reasons, this can pose problems.
 %
-% Let's say you have the decimal integer 168496141. In binary, this is a very long value.
-% We'll instead refer to it by its hexadecimal form: 0x0A0B0C0D. The largest byte is 0A,
+% Let's say you have the decimal integer 168496141. In binary, this is a long value.
+% We'll instead refer to it by its hexadecimal form: 0A0B0C0D. The largest byte is 0A,
 % then 0B, then 0C, and the smallest byte is 0D.
 %
 % We call 0A the most significant byte. It has the most significant value.
@@ -150,11 +146,10 @@
 \end{frame}
 
 % ---------------------------
-\newcommand{\currentexample}{$168496141_{10}$ = \hex{0A0B0C0D}}
 \begin{frame}{\currenttitle}
 % If you have a number like 168-million blah blah blah, which is 0A0B0C0D in hex,
 % 0A is the most significant byte, and 0D is the least significant byte.
-  \currentexample
+  \(168496141_{10}\) = \hex{0A0B0C0D}
 
   \vspace*{1em}
 
@@ -182,22 +177,24 @@
 % bi-endian.
 %
 % Of course, this is how it would write to memory as well.
-  \currentexample
+  \(168496141_{10}\) = \hex{0A0B0C0D}
 
-  \vspace*{0.5em}
+  \vspace{0.5em}
 
-  \newcommand{\intbytefield}[5]{
-    \begin{figure}
+  \newcommand{\intbytefield}[5]{%
+    % \begin{figure}
       \begin{bytefield}{32}
-        \bitheader{0-31} \\
-        \bitboxes{8}{{\colorbox{black!20}{\textbf{#2}}} {#3} {#4} {#5}}
+        \bitheader{0-31} \\ % chktex 8
+        % \bitboxes{8}{{\colorbox{black!20}{\textbf{#2}}}{#3}{#4}{#5}}
+        % \bitbox{32}{\colorbox{black!20}{\textbf{#2}}}
       \end{bytefield}
-      \caption{#1}
-    \end{figure}
+      % \caption{#1}
+    % \end{figure}
   }
 
-  \intbytefield{Big endian memory layout}{0A (MSB)}{0B}{0C}{0D}
-  \intbytefield{Little endian memory layout}{0D (LSB)}{0C}{0B}{0A}
+  \intbytefield{Big endian memory layout}{0A (MSB)}{0B}{0C}{0D} \\
+
+  % \intbytefield{Little endian memory layout}{0D (LSB)}{0C}{0B}{0A}
 \end{frame}
 
 % ---------------------------
