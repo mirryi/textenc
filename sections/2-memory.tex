@@ -209,7 +209,46 @@
 % a boiled egg should be broken from the big end, and the other from the little end.
 % They're called big-endian and little-endian, and computer scientists took those terms.
 % Lilliputian has also made it into the English dictionary and has the meaning tiny or trivial.
-  \textbf{Endianness} indicates the order in which memory is written and read
+  \begin{itemize}[leftmargin=*]
+    \item[] \textbf{Endianness} \textendash{} the order in which memory is written and read \\
+    \item[] \textbf{Big endianness} \textendash{} most significant byte to least significant byte \\
+    \item[] \textbf{Little endianness} \textendash{} least significant byte to most significant byte
+  \end{itemize}
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{So what about text?}
+\begin{frame}{\currenttitle}
+% So we've talked a little bit about how something like an integer is stored in memory.
+% But what about text?
+% Everything is stored in 0's and 1's, so to store text, we'll need to basically convert text
+% into numbers or sequences of numbers.
+%
+% The conversion process is called text encoding.
+%
+% Now that we've got the necessary background to talk about text encoding, we'll start looking
+% at two text encoding standards, ASCII and Unicode.
+  We need to convert strings of text into numbers or sequences of numbers
+
+  \vspace*{2em}
+
+  \tikzstyle{block} = [rectangle, draw, text width=5em,%
+                       text centered, rounded corners, minimum height=4em]
+  \tikzstyle{cloud} = [draw, ellipse, node distance=3cm, minimum height=2em]
+  \tikzstyle{line} = [draw, -latex']
+  \begin{center}
+    \begin{figure}
+      \begin{tikzpicture}[node distance=2cm, auto]
+        \node [cloud, align=left] (input) {"Hello \\ World"};
+        \node [block, right of=input, node distance=3cm] (process) {Conversion};
+        \node [cloud, right of=process] (output) {\dots011101\dots};
+
+        \path [line] (input) -- (process);
+        \path [line] (process) -- (output);
+      \end{tikzpicture}
+      \caption{Sketch of text memory storage}
+    \end{figure}
+  \end{center}
 \end{frame}
 
 
