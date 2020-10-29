@@ -289,27 +289,27 @@ class OS(enum.Enum):
         else:
             return Ext.ZIP
 
-    @ staticmethod
+    @staticmethod
     def is_linux() -> bool:
         return OS.is_platform('linux')
 
-    @ staticmethod
+    @staticmethod
     def is_freebsd() -> bool:
         return OS.is_platform('freebsd')
 
-    @ staticmethod
+    @staticmethod
     def is_darwin() -> bool:
         return OS.is_platform('darwin')
 
-    @ staticmethod
+    @staticmethod
     def is_windows() -> bool:
         return OS.is_platform('win32')
 
-    @ staticmethod
+    @staticmethod
     def is_platform(platform: str) -> bool:
         return sys.platform.startswith(platform)
 
-    @ staticmethod
+    @staticmethod
     def get() -> Optional[OS]:
         if OS.is_linux():
             return OS.LINUX
@@ -358,7 +358,7 @@ def cli(loaders: LoaderConfig) -> argparse.ArgumentParser:
                 (kwargs['dest'] if kwargs.get('dest') is not None else name)
             install_args.append(([flag], new_kwargs))
 
-    @ subcommand(name='install', args=install_args)
+    @subcommand(name='install', args=install_args)
     def install_command(args):
         profile = profile_from_args(args)
         installer = Installer(profile, loaders)
@@ -373,7 +373,7 @@ def cli(loaders: LoaderConfig) -> argparse.ArgumentParser:
                 (kwargs['dest'] if kwargs.get('dest') is not None else name)
             regenerate_args.append(([flag], new_kwargs))
 
-    @ subcommand(name='regenerate', args=regenerate_args)
+    @subcommand(name='regenerate', args=regenerate_args)
     def regenerate_command(args):
         profile = profile_from_args(args)
         installer = Installer(profile)
