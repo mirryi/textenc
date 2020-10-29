@@ -18,77 +18,87 @@ DEFAULT_BIN = os.path.join(DEFAULT_INSTALL, 'bin')
 DEFAULT_TEXPACKAGES = 'packages.txt'
 TINYTEX_VERSION = 'v2020.10'
 
-cli = argparse.ArgumentParser('build.py')
-subparsers = cli.add_subparsers(dest='command')
-
 
 def main():
-    args = cli.parse_args()
+    parser = cli()
+    args = parser.parse_args()
     if args.command is None:
-        cli.print_help()
+        parser.print_help()
     else:
         args.func(args)
 
 
-def subcommand(name=None, args=[], parent=subparsers):
-    '''Convenience subcommand decorator'''
-    def decorator(func):
-        if name is None:
-            parser_name = func.__name__
+def cli() -> argparse.ArgumentParser:
+    cli = argparse.ArgumentParser('build.py')
+    subparsers = cli.add_subparsers(dest='command')
+
+    def subcommand(name=None, args=[], parent=subparsers):
+        '''Convenience subcommand decorator'''
+        def decorator(func):
+            if name is None:
+                parser_name = func.__name__
+            else:
+                parser_name = name
+
+            parser = parent.add_parser(parser_name, description=func.__doc__)
+            for arg in args:
+                parser.add_argument(*arg[0], **arg[1])
+            parser.set_defaults(func=func)
+        return decorator
+
+    def argument(*name_or_flags, **kwargs):
+        return ([*name_or_flags], kwargs)
+
+    shared_args = [
+        argument('--os', dest='use_os', required=False,
+                 choices=['linux', 'freebsd', 'darwin', 'win32'],
+                 help='use alternate os installation'),
+        argument('-t', '--target', default=DEFAULT_INSTALL,
+                 metavar='DIR',
+                 help='installation target directory'),
+    ]
+
+    install_args = shared_args + [
+        argument('--tinytex-version', default=TINYTEX_VERSION,
+                 metavar='VERSION',
+                 help='specify alternate TinyTeX version'),
+        argument('--no-packages', dest='no_packages', action='store_true',
+                 help='do not install packages from list'),
+        argument('--packages-only', dest='packages_only', action='store_true',
+                 help=('only install packages from list; '
+                       'overrides --no-packages')),
+        argument('--package-list', dest='package_list',
+                 default=DEFAULT_TEXPACKAGES, metavar='FILE',
+                 help='specify alternate TeX packages list'),
+        argument('--extra-packages', dest='extra_packages',
+                 help='specify extra TeX packages to install'),
+        argument('--reinstall', action='store_true',
+                 help='remove previous installation and reinstall')
+    ]
+
+    @subcommand(name='install', args=install_args)
+    def install_command(args):
+        profile = profile_from_args(args)
+        installer = Installer(profile)
+
+        if not args.packages_only:
+            installer.install_tinytex(args.tinytex_version, args.reinstall)
+            if not args.no_packages:
+                install_packages(installer, args.package_list,
+                                 args.extra_packages)
         else:
-            parser_name = name
-
-        parser = parent.add_parser(parser_name, description=func.__doc__)
-        for arg in args:
-            parser.add_argument(*arg[0], **arg[1])
-        parser.set_defaults(func=func)
-    return decorator
-
-
-def argument(*name_or_flags, **kwargs):
-    return ([*name_or_flags], kwargs)
-
-
-shared_args = [
-    argument('--os', dest='use_os', required=False,
-             choices=['linux', 'freebsd', 'darwin', 'win32'],
-             help='use alternate os installation'),
-    argument('-t', '--target', default=DEFAULT_INSTALL,
-             metavar='DIR',
-             help='installation target directory'),
-]
-
-install_args = shared_args + [
-    argument('--tinytex-version', default=TINYTEX_VERSION,
-             metavar='VERSION',
-             help='specify alternate TinyTeX version'),
-    argument('--no-packages', dest='no_packages', action='store_true',
-             help='do not install packages from list'),
-    argument('--packages-only', dest='packages_only', action='store_true',
-             help='only install packages from list; overrides --no-packages'),
-    argument('--package-list', dest='package_list',
-             default=DEFAULT_TEXPACKAGES, metavar='FILE',
-             help='specify alternate TeX packages list'),
-    argument('--extra-packages', dest='extra_packages',
-             help='specify extra TeX packages to install'),
-    argument('--reinstall', action='store_true',
-             help='remove previous installation and reinstall')
-]
-
-
-@subcommand(args=install_args)
-def install(args):
-    profile = profile_from_args(args)
-    installer = Installer(profile)
-
-    if not args.packages_only:
-        installer.install_tinytex(args.tinytex_version, args.reinstall)
-        if not args.no_packages:
             install_packages(installer, args.package_list,
                              args.extra_packages)
-    else:
-        install_packages(installer, args.package_list,
-                         args.extra_packages)
+
+    regenerate_args = shared_args
+
+    @subcommand(name='regenerate', args=regenerate_args)
+    def regenerate_command(args):
+        profile = profile_from_args(args)
+        installer = Installer(profile)
+        installer.regenerate_symlinks()
+
+    return cli
 
 
 def install_packages(installer: Installer, list_path: str,
@@ -101,16 +111,6 @@ def install_packages(installer: Installer, list_path: str,
         packages += extra.split(',')
 
     installer.install_tex_packages(packages)
-
-
-regenerate_args = shared_args
-
-
-@subcommand(args=regenerate_args)
-def regenerate(args):
-    profile = profile_from_args(args)
-    installer = Installer(profile)
-    installer.regenerate_symlinks()
 
 
 def profile_from_args(args) -> InstallerProfile:
