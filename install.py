@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import abc
 import argparse
 import enum
 import os
@@ -10,17 +11,20 @@ import sys
 import tarfile
 import urllib.request
 import zipfile
+from abc import abstractmethod
 from typing import Iterable
+from typing import List
 from typing import Optional
+from typing import Tuple
+from typing import Type
 
 DEFAULT_INSTALL = 'local'
 DEFAULT_BIN = os.path.join(DEFAULT_INSTALL, 'bin')
-DEFAULT_TEXPACKAGES = 'packages.txt'
-TINYTEX_VERSION = 'v2020.10'
 
 
 def main():
-    parser = cli()
+    loaders = [('tt', TinyTexLoader)]
+    parser = cli(loaders)
     args = parser.parse_args()
     if args.command is None:
         parser.print_help()
@@ -28,106 +32,67 @@ def main():
         args.func(args)
 
 
-def cli() -> argparse.ArgumentParser:
-    cli = argparse.ArgumentParser('build.py')
-    subparsers = cli.add_subparsers(dest='command')
+class Loader(abc.ABC):
+    def __init__(self, profile: Profile):
+        raise NotImplementedError('loader not implemented')
 
-    def subcommand(name=None, args=[], parent=subparsers):
-        '''Convenience subcommand decorator'''
-        def decorator(func):
-            if name is None:
-                parser_name = func.__name__
-            else:
-                parser_name = name
+    @abstractmethod
+    def install(self, kwargs):
+        raise NotImplementedError('install not implemented')
 
-            parser = parent.add_parser(parser_name, description=func.__doc__)
-            for arg in args:
-                parser.add_argument(*arg[0], **arg[1])
-            parser.set_defaults(func=func)
-        return decorator
+    @staticmethod
+    def install_args() -> List[Argument]:
+        raise NotImplementedError('install_args not implemented')
 
-    def argument(*name_or_flags, **kwargs):
-        return ([*name_or_flags], kwargs)
+    @abstractmethod
+    def regenerate(self, kwargs):
+        raise NotImplementedError('regenerate not implemented')
 
-    shared_args = [
-        argument('--os', dest='use_os', required=False,
-                 choices=['linux', 'freebsd', 'darwin', 'win32'],
-                 help='use alternate os installation'),
-        argument('-t', '--target', default=DEFAULT_INSTALL,
-                 metavar='DIR',
-                 help='installation target directory'),
-    ]
-
-    install_args = shared_args + [
-        argument('--tinytex-version', default=TINYTEX_VERSION,
-                 metavar='VERSION',
-                 help='specify alternate TinyTeX version'),
-        argument('--no-packages', dest='no_packages', action='store_true',
-                 help='do not install packages from list'),
-        argument('--packages-only', dest='packages_only', action='store_true',
-                 help=('only install packages from list; '
-                       'overrides --no-packages')),
-        argument('--package-list', dest='package_list',
-                 default=DEFAULT_TEXPACKAGES, metavar='FILE',
-                 help='specify alternate TeX packages list'),
-        argument('--extra-packages', dest='extra_packages',
-                 help='specify extra TeX packages to install'),
-        argument('--reinstall', action='store_true',
-                 help='remove previous installation and reinstall')
-    ]
-
-    @subcommand(name='install', args=install_args)
-    def install_command(args):
-        profile = profile_from_args(args)
-        installer = Installer(profile)
-
-        if not args.packages_only:
-            installer.install_tinytex(args.tinytex_version, args.reinstall)
-            if not args.no_packages:
-                install_packages(installer, args.package_list,
-                                 args.extra_packages)
-        else:
-            install_packages(installer, args.package_list,
-                             args.extra_packages)
-
-    regenerate_args = shared_args
-
-    @subcommand(name='regenerate', args=regenerate_args)
-    def regenerate_command(args):
-        profile = profile_from_args(args)
-        installer = Installer(profile)
-        installer.regenerate_symlinks()
-
-    return cli
+    @staticmethod
+    def regenerate_args() -> List[Argument]:
+        raise NotImplementedError('regerate_args not implemented')
 
 
-def install_packages(installer: Installer, list_path: str,
-                     extra: Optional[str]):
-    print("Installing packages from {}...".format(list_path))
-    with open(list_path, 'r') as file:
-        packages = [line.strip() for line in file]
+class TinyTexLoader(Loader):
+    DEFAULT_TEXPACKAGES = 'packages.txt'
+    TINYTEX_VERSION = 'v2020.10'
 
-    if extra is not None:
-        packages += extra.split(',')
-
-    installer.install_tex_packages(packages)
-
-
-def profile_from_args(args) -> InstallerProfile:
-    if args.use_os is not None:
-        use_os = args.use_os
-    else:
-        use_os = OS.get()
-    return InstallerProfile(use_os, args.target)
-
-
-class Installer:
-    def __init__(self, profile: InstallerProfile):
+    def __init__(self, profile: Profile):
         self.profile = profile
 
-    def install_tinytex(self, tinytex_version: str, reinstall: bool):
+    @staticmethod
+    def install_args() -> List[Argument]:
+        return [
+            argument('version', default=TinyTexLoader.TINYTEX_VERSION,
+                     metavar='VERSION',
+                     help='specify alternate TinyTeX version'),
+            argument('no-packages', dest='no_packages', action='store_true',
+                     help='do not install packages from list'),
+            argument('packages-only', dest='packages_only',
+                     action='store_true',
+                     help=('only install packages from list; '
+                           'overrides --no-packages')),
+            argument('package-list', dest='package_list',
+                     default=TinyTexLoader.DEFAULT_TEXPACKAGES,
+                     metavar='FILE',
+                     help='specify alternate TeX packages list'),
+            argument('extra-packages', dest='extra_packages',
+                     help='specify extra TeX packages to install'),
+            argument('reinstall', action='store_true',
+                     help='remove previous installation and reinstall')
+        ]
+
+    def install(self, args):
+        if args.packages_only:
+            self.install_packages(args.package_list,
+                                  args.extra_packages)
+            return
+
+        reinstall = args.reinstall
+
         target = self.profile.target
         ext = self.profile.os.ext()
+        tinytex_dir = self.tinytex_dir()
 
         print('Checking for existing installation...')
         skip_install = False
@@ -135,7 +100,7 @@ class Installer:
             print('TinyTeX found, ', end='')
             if reinstall:
                 print('removing...')
-                shutil.rmtree(self.profile.tinytex_dir())
+                shutil.rmtree(tinytex_dir)
             else:
                 print('skipping installation...')
                 skip_install = True
@@ -146,8 +111,8 @@ class Installer:
             except FileExistsError:
                 pass
 
-            print('Downloading TinyTeX release {}...'.format(tinytex_version))
-            archive_path = self.download_tinytex_release(tinytex_version)
+            print('Downloading TinyTeX release {}...'.format(args.version))
+            archive_path = self.download_tinytex_release(args.version)
 
             print('Unpacking release archive...')
             if ext is Ext.TARGZ or ext is Ext.TGZ:
@@ -158,8 +123,8 @@ class Installer:
                     archive.extractall(target)
 
             print('Renaming TinyTeX installation directory...')
-            unpacked_dir = os.path.join(self.profile.target, '.TinyTeX')
-            os.rename(unpacked_dir, self.profile.tinytex_dir())
+            unpacked_dir = os.path.join(target, '.TinyTeX')
+            os.rename(unpacked_dir, tinytex_dir)
 
             print('Removing TinyTeX archive...')
             try:
@@ -172,11 +137,29 @@ class Installer:
         print('Updating package index...')
         self.tlmgr('update', '--self')
 
-        print('Creating activation scripts...')
-        self.create_activate_files()
+        if not args.no_packages:
+            self.install_packages(args.package_list,
+                                  args.extra_packages)
+
+    def install_packages(self, list_path: str, extra: Optional[str]):
+        print("Installing packages from {}...".format(list_path))
+        with open(list_path, 'r') as file:
+            packages = [line.strip() for line in file]
+
+        if extra is not None:
+            packages += extra.split(',')
+
+        self.install_tex_packages(packages)
 
     def install_tex_packages(self, packages: Iterable[str]):
         self.tlmgr('install', *packages)
+
+    @staticmethod
+    def regenerate_args() -> List[Argument]:
+        return []
+
+    def regenerate(self, kwargs):
+        self.regenerate_symlinks()
 
     def regenerate_symlinks(self):
         print('Setting tlmgr sys_bin...')
@@ -193,18 +176,11 @@ class Installer:
         self.tlmgr('path', 'add')
 
     def tlmgr(self, *args: str):
-        subprocess.call(['./tlmgr'] + list(args),
-                        cwd=self.profile.tinytex_bin())
-
-    def create_activate_files(self):
-        for s, f in [(self.profile.sh_activate_script(), 'activate'),
-                     (self.profile.ps1_activate_script(), 'activate.ps1')]:
-            filepath = os.path.join(self.profile.target, f)
-            with open(filepath, 'w+') as file:
-                file.write(s)
+        subprocess.call(['./tlmgr'] + list(args),  # nosec
+                        cwd=self.tinytex_bin())
 
     def tinytex_exists(self) -> bool:
-        return os.path.exists(self.profile.tinytex_dir())
+        return os.path.exists(self.tinytex_dir())
 
     def download_tinytex_release(self, version) -> str:
         release_name = 'TinyTeX-1-{version}.{ext}'.format(
@@ -214,11 +190,52 @@ class Installer:
                                              release=release_name)
         dest = os.path.join(self.profile.target,
                             'tinytex.{}'.format(self.profile.os.ext()))
-        urllib.request.urlretrieve(url, dest)
+        urllib.request.urlretrieve(url, dest)  # nosec
         return dest
 
+    def tinytex_bin(self) -> str:
+        arch = self.profile.os.arch()
+        return os.path.join(self.tinytex_dir(), 'bin', arch)
 
-class InstallerProfile:
+    def tinytex_dir(self) -> str:
+        return os.path.join(self.profile.target, 'tinytex')
+
+
+LoaderConfig = Iterable[Tuple[str, Type[Loader]]]
+
+
+class Installer:
+    def __init__(self, profile: Profile, loaders: LoaderConfig):
+        self.profile = profile
+        self.loaders = [(ns, loader(self.profile)) for ns, loader in loaders]
+
+    def install(self, kwargs):
+        for ns, loader in self.loaders:
+            args = self.__strip_namespace(kwargs, ns)
+            loader.install(args)
+        self.create_activate_files()
+
+    def regenerate(self, kwargs):
+        for ns, loader in self.loaders:
+            args = self.__strip_namespace(kwargs, ns)
+            loader.install(args)
+        self.create_activate_files()
+
+    def __strip_namespace(self, kwargs: dict, ns: str) -> DictAttr:
+        prefix = ns + '.'
+        args = {k[len(prefix):]: v for k, v in kwargs.items()
+                if k.startswith(prefix)}
+        return DictAttr(args)
+
+    def create_activate_files(self):
+        for s, f in [(self.profile.sh_activate_script(), 'activate'),
+                     (self.profile.ps1_activate_script(), 'activate.ps1')]:
+            filepath = os.path.join(self.profile.target, f)
+            with open(filepath, 'w+') as file:
+                file.write(s)
+
+
+class Profile:
     def __init__(self, os: OS, target: str, bin_dir=None):
         self.os = os
         self.target = target
@@ -231,13 +248,6 @@ class InstallerProfile:
         if self.bin is not None:
             return self.bin
         return os.path.join(self.target, 'bin')
-
-    def tinytex_bin(self) -> str:
-        arch = self.os.arch()
-        return os.path.join(self.tinytex_dir(), 'bin', arch)
-
-    def tinytex_dir(self) -> str:
-        return os.path.join(self.target, 'tinytex')
 
     def sh_activate_script(self) -> str:
         bin = os.path.abspath(self.bin_dir())
@@ -279,27 +289,27 @@ class OS(enum.Enum):
         else:
             return Ext.ZIP
 
-    @staticmethod
+    @ staticmethod
     def is_linux() -> bool:
         return OS.is_platform('linux')
 
-    @staticmethod
+    @ staticmethod
     def is_freebsd() -> bool:
         return OS.is_platform('freebsd')
 
-    @staticmethod
+    @ staticmethod
     def is_darwin() -> bool:
         return OS.is_platform('darwin')
 
-    @staticmethod
+    @ staticmethod
     def is_windows() -> bool:
         return OS.is_platform('win32')
 
-    @staticmethod
+    @ staticmethod
     def is_platform(platform: str) -> bool:
         return sys.platform.startswith(platform)
 
-    @staticmethod
+    @ staticmethod
     def get() -> Optional[OS]:
         if OS.is_linux():
             return OS.LINUX
@@ -312,7 +322,95 @@ class OS(enum.Enum):
         return None
 
 
-SH_ACTIVATE_SCRIPT_FMT = """#!/bin/sh
+def cli(loaders: LoaderConfig) -> argparse.ArgumentParser:
+    cli = argparse.ArgumentParser('install.py')
+    subparsers = cli.add_subparsers(dest='command')
+
+    def subcommand(name=None, args=[], parent=subparsers):
+        def decorator(func):
+            if name is None:
+                parser_name = func.__name__
+            else:
+                parser_name = name
+
+            parser = parent.add_parser(
+                parser_name, description=func.__doc__)
+            for arg in args:
+                parser.add_argument(*arg[0], **arg[1])
+            parser.set_defaults(func=func)
+        return decorator
+
+    shared_args = [
+        (['--os'], dict(dest='use_os', required=False,
+                        choices=['linux', 'freebsd', 'darwin', 'win32'],
+                        help='use alternate os installation')),
+        (['-t', '--target'], dict(default=DEFAULT_INSTALL,
+                                  metavar='DIR',
+                                  help='installation target directory')),
+    ]
+
+    install_args = shared_args[:]
+    for ns, loader in loaders:
+        for name, kwargs in loader.install_args():
+            flag = '--' + ns + '-' + name
+            new_kwargs = kwargs.copy()
+            new_kwargs['dest'] = ns + '.' + \
+                (kwargs['dest'] if kwargs.get('dest') is not None else name)
+            install_args.append(([flag], new_kwargs))
+
+    @ subcommand(name='install', args=install_args)
+    def install_command(args):
+        profile = profile_from_args(args)
+        installer = Installer(profile, loaders)
+        installer.install(vars(args))
+
+    regenerate_args = shared_args[:]
+    for ns, loader in loaders:
+        for name, kwargs in loader.regenerate_args():
+            flag = '--' + ns + '-' + name
+            new_kwargs = kwargs.copy()
+            new_kwargs['dest'] = ns + '.' + \
+                (kwargs['dest'] if kwargs.get('dest') is not None else name)
+            regenerate_args.append(([flag], new_kwargs))
+
+    @ subcommand(name='regenerate', args=regenerate_args)
+    def regenerate_command(args):
+        profile = profile_from_args(args)
+        installer = Installer(profile)
+        installer.regenerate(vars(args))
+
+    return cli
+
+
+def profile_from_args(args) -> Profile:
+    if args.use_os is not None:
+        use_os = args.use_os
+    else:
+        use_os = OS.get()
+    return Profile(use_os, args.target)
+
+
+Argument = Tuple[str, dict]
+
+
+def argument(name, **kwargs) -> Argument:
+    return (name, kwargs)
+
+
+class DictAttr(dict):
+    def __getattr__(self, key):
+        if key not in self:
+            raise AttributeError(key)
+        return self[key]
+
+    def __setattr__(self, key, value):
+        self[key] = value
+
+    def __delattr__(self, key):
+        del self[key]
+
+
+SH_ACTIVATE_SCRIPT_FMT = r"""#!/bin/sh
 deactivate() {{
     # reset old environment variables
     if [ -n "${{_OLD_VIRTUAL_PATH:-}}" ]; then
@@ -355,7 +453,7 @@ if [ -n "${{BASH:-}}" -o -n "${{ZSH_VERSION:-}}" ] ; then
 fi
 """
 
-PS1_ACTIVATE_SCRIPT_FMT = """
+PS1_ACTIVATE_SCRIPT_FMT = r"""
 $script:THIS_PATH = $myinvocation.mycommand.path
 $script:BASE_DIR = Split-Path (Resolve-Path "$THIS_PATH/..") -Parent
 
