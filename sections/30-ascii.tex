@@ -68,7 +68,7 @@
 \end{frame}
 
 % ---------------------------
-\begin{frame}{\currenttitle}
+\begin{frame}[fragile]{\currenttitle}
 % There are 16 rows, and 8 column groups. That means there are 128 characters encoded.
 % The maximum value assigned is 127.
 %
@@ -85,14 +85,21 @@
 % 8th bit was used as a parity bit for error checking. Others set it to 0.
   128 characters \textrightarrow{} $2^7$ \textrightarrow{} 7 bits \\
 
-  % \begin{luacode*}
-    % -- tex.sprint("djkawlfjawj")
-    % -- local scrap = require("32-ascii-bytefield")
-    % -- tex.sprint(scrap.str_to_hex("hello world"))
-  % \end{luacode*}
+  \vspace*{1em}
 
-  % \begin{bytefield}
-  % \end{bytefield}
+  \begin{figure}
+    \begin{bytefield}[bitwidth=1em]{14}
+      \bitheader{0-13} \\
+      \bitboxes{1}{1001000 1101001}
+    \end{bytefield}
+  \end{figure}
+
+  \begin{figure}
+    \begin{bytefield}[bitwidth=1em]{16}
+      \bitheader{0-15} \\
+      \bitboxes{1}{1001000{\ } 1101001{\ }}
+    \end{bytefield}
+  \end{figure}
 \end{frame}
 
 

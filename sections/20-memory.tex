@@ -161,7 +161,7 @@
 \end{frame}
 
 % ---------------------------
-\begin{frame}{\currenttitle}
+\begin{frame}[fragile]{\currenttitle}
 % Different CPU architectures will read data differently.
 % Certain architectures, such IBM's z/Architecture and OpenRISC, read data starts from the
 % most significant byte to the least significant byte.
@@ -181,19 +181,18 @@
   \vspace{0.5em}
 
   \newcommand{\intbytefield}[5]{%
-    % \begin{figure}
+    \begin{figure}
       \begin{bytefield}{32}
         \bitheader{0-31} \\ % chktex 8
-        % \bitboxes{8}{{\colorbox{black!20}{\textbf{#2}}}{#3}{#4}{#5}}
-        % \bitbox{32}{\colorbox{black!20}{\textbf{#2}}}
+        \bitboxes{8}{{\colorbox{black!20}{\textbf{#2}}} {#3} {#4} {#5}}%
       \end{bytefield}
-      % \caption{#1}
-    % \end{figure}
+      \caption{#1}
+    \end{figure}
   }
 
-  \intbytefield{Big endian memory layout}{0A (MSB)}{0B}{0C}{0D} \\
+  \intbytefield{Big endian memory layout}{0A (MSB)}{0B}{0C}{0D}
 
-  % \intbytefield{Little endian memory layout}{0D (LSB)}{0C}{0B}{0A}
+  \intbytefield{Little endian memory layout}{0D (LSB)}{0C}{0B}{0A}
 \end{frame}
 
 % ---------------------------
