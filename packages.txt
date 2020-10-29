@@ -9,4 +9,3 @@ luacode
 luatexbase
 pgfopts
 subfiles
-tikz
