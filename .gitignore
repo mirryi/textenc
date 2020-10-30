@@ -1,8 +1,10 @@
 # TeX installation directory
 /local
+*/renv
 
 # Knitted files
 *.knit.tex
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
