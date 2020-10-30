@@ -39,6 +39,7 @@ class TinyTexLoader(Loader):
                      metavar='FILE',
                      help='specify alternate TeX packages list'),
             argument('extra-packages', dest='extra_packages',
+                     metavar='PACKAGES',
                      help='specify extra TeX packages to install'),
             argument('reinstall', action='store_true',
                      help='remove previous installation and reinstall')
