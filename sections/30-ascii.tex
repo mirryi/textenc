@@ -10,11 +10,46 @@
 % -----------------------------------------------
 \renewcommand{\sectiontitle}{ASCII}
 \section{\sectiontitle}
-% There were other text encodings before ASCII, but ASCII is one that is still used sometimes.
-% Today, the international standard of text encoding is Unicode.
+% There were other text encoding standards before ASCII, but ASCII is one that is still used
+% sometimes.
+% Today, the international standard character set is Unicode, and the standard character encodings
+% are the Unicode Transformation Formats.
 %
-% We'll examine the ASCII standard and its limitations, and then look at how Unicode attempts
-% to ameliorate these issues.
+% We'll examine the ASCII standard and its limitations, and then look at how Unicode and UTF
+% attempt to ameliorate these issues.
+
+% ---------------------------
+\renewcommand{\currenttitle}{Character set vs.\ character encoding}
+\begin{frame}{\currenttitle}
+% Before we can talk specifically about ASCII or Unicode, we need to define some terms.
+% Historically, many of these terms were generally synonymous, but have since become related
+% but distinct terms.
+%
+% A character set denotes a collection of characters that are used in a written language.
+% Think of the English alphabet. The upper and lowercase letters A to Z, puntuation symbols,
+% and numerical digits would constitute the character set of basic English.
+%
+% Now, the coded character set is indicates how each character in the character set should be
+% mapped to code points.
+% Code points are, in our case, numerical values.
+%
+% So, each character in the character set is mapped to a a numerical value.
+% For example, as we'll see in ASCII, the uppercase A is mapped to the code point value of 65.
+%
+% Finally, the character encoding indiciates how we map those code points, those numerical
+% values, into bytes that we can write to memory or storage.
+% Naturally, an encoding also specifies how we'll decode the data back into code points and
+% characters.
+  \begin{itemize}[leftmargin=*]
+    \item[] \textbf{Character set} \textendash{} collection of characters in a written language
+    \item[] \textbf{Coded character set} \textendash{} function that maps characters to code points
+    \item[] \textbf{Code point} \textendash{} a value denoting a character
+    \item[] \textbf{Character encoding}
+            \textendash{} mapping of code points to bytes\footnotemark{}
+  \end{itemize}
+  \footnotetext{More precisely, there's the \textbf{character encoding form} and the
+                \textbf{character encoding sequence}}
+\end{frame}
 
 % ---------------------------
 \renewcommand{\currenttitle}{1963 \textendash{} ASCII}
@@ -23,21 +58,23 @@
 % Designed for use of English, it encodes 0 - 9, a - z, A - Z, and punctuation symbols like
 % the period and parenthesis. It also has characters such as the line feed and carriage return.
 %
-% The designers of ASCII, like with text encodings that came before it, assigned each character
-% a number.
 % So when we store text according to the ASCII encoding, we convert each character into its
 % corresponding numerical value, and then store that value in binary.
   \textbf{ASCII} \textendash{} American Standard Code for Information Interchange \\
+
   \vspace*{1em}
-  Each character is assigned a single value.
+
+  Now referred to officially as \textbf{US-ASCII} by the IANA
 \end{frame}
 
 % ---------------------------
 \begin{frame}{\currenttitle}
-% See here a table of all the characters encoded in the ASCII standard. This is first page.
+% See here a table of all the characters in the ASCII character set.
+% This is first page.
 %
-% In the first column, we see the decimal value assigned to each character.
+% In the first column, we see the code point value (in decimal) assigned to each character.
 % In the second column, we see the hex equivalent.
+% If you remember from two slides ago, this is called the coded character set.
 %
 % The lowest values are some non-printable characters.
 %
@@ -56,7 +93,7 @@
 
 % ---------------------------
 \begin{frame}{\currenttitle}
-% These are the rest of the characters specified by the ASCII standard.
+% These are the rest of the characters specified in ASCII character set.
 %
 % Notice that the alphabeta starts on 65 with uppercase characters.
 % Then there are a few symbols, and then the lowercase characters from 97 to 122.
@@ -68,40 +105,93 @@
 \end{frame}
 
 % ---------------------------
+\renewcommand{\currenttitle}{7-bit ASCII encoding}
 \begin{frame}[fragile]{\currenttitle}
-% There are 16 rows, and 8 column groups. That means there are 128 characters encoded.
+% There are 16 rows, and 8 column groups. That means there are 128 characters to be encoded.
 % The maximum value assigned is 127.
 %
 % 128 = 2^7.
-% That means any ASCII-encoded character can be stored in 7 bits.
-% Any ASCII-encoded character can be stored in a single byte.
+% That means any character in the ASCII character set can be stored in a minimum of 7 bits.
+% Any of these character can be stored in less than a single byte.
+%
+% This is where we get to the character encoding part.
 %
 % The ASCII standard initially specified a 7-bit encoding to reduce costs in transmitting
 % data.
+% Below we can see that encoding the word "Hi" takes up 14 bits.
+  128 characters \textrightarrow{} $2^7$ \textrightarrow{} 7 bits \\
+
+  \vspace*{1.5em}
+
+  \begin{figure}
+    \begin{bytefield}[bitwidth=1em]{14}
+      \bitheader{0-13} \\ % chktex 8
+      \bitboxes{1}{1001000 1101001}
+    \end{bytefield}
+    \caption{7-bit ASCII encoding for ``Hi''}
+  \end{figure}
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{8-bit ASCII encoding}
+\begin{frame}[fragile]{\currenttitle}
 % As 8-bit, 16-bit, and 32-bit computers became more widespread, 8-bit encoding derivatives
 % developed. These use all 8-bits of a byte instead of 7.
 %
 % For some 8-bit derivatives, since only 7 bits are needed to store the character, the
-% 8th bit was used as a parity bit for error checking. Others set it to 0.
-  128 characters \textrightarrow{} $2^7$ \textrightarrow{} 7 bits \\
+% 8th bit is used as a parity bit for error checking. Others set it to 0.
+%
+% The 8-bit encoding for "Hi" takes up a 16 bits, or 2 bytes.
+%
+% Because ASCII-encoded characters only take up a single byte at most, we don't need to
+% worry about endianness.
+% The first byte will be the first character; the second byte will be the second character.
+% Remember, endianness is only relevant to multi-byte data.
+  8-bit encoding \textrightarrow{} 7 bits + 1 parity or empty bit
 
-  \vspace*{1em}
+  \vspace*{0.5em}
 
   \begin{figure}
-    \begin{bytefield}[bitwidth=1em]{14}
-      \bitheader{0-13} \\
-      \bitboxes{1}{1001000 1101001}
+    \begin{bytefield}[bitwidth=1em,bitheight=\widthof{~Parity},
+                      boxformatting={\centering\scriptsize\itshape}]
+                     {16}
+      \bitheader{0,6,7,14,15} \\
+      \bitbox{7}{Encoded character} & \bitbox{1}{\rotatebox{90}{Parity}} &
+      \bitbox{7}{Encoded character} & \bitbox{1}{\rotatebox{90}{Parity}}
     \end{bytefield}
+    \caption{8-bit ASCII encoding for two characters}
   \end{figure}
 
   \begin{figure}
     \begin{bytefield}[bitwidth=1em]{16}
-      \bitheader{0-15} \\
+      \bitheader{0-15} \\ % chktex 8
       \bitboxes{1}{1001000{\ } 1101001{\ }}
     \end{bytefield}
+    \caption{8-bit ASCII encoding for ``Hi''}
   \end{figure}
 \end{frame}
 
+% ---------------------------
+\renewcommand{\currenttitle}{Writing an ASCII decoder}
+\begin{frame}[fragile]{\currenttitle}
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{The drawbacks}
+\begin{frame}[fragile]{\currenttitle}
+% As you can probably guess, there are some pretty obvious caveats to ASCII.
+%
+% Because the encoding stores one character in one byte, we can't store much else.
+% If we make full use of all 8 bits, we can store another 128 characters, pushing our total
+% of supported characters up to 256.
+%
+% But there are obviously more than 256 characters in the world.
+% What if we want to write kanji? How do we encode and store that?
+% What about e with an acute accent to write words like résumé, or write French?
+
+  What about all the other characters out there?
+
+\end{frame}
 
 % -----------------------------------------------
 
