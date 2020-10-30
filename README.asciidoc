@@ -6,8 +6,8 @@ A presentation on text encoding and Unicode.
 
 Requirements:
 
-. Python 3.6+
-. R 4.0
+* Python 3.6+
+* R 4.0
 
 To build on Unix/Linux/macOS:
 
