@@ -4,6 +4,7 @@
 \usetheme{metropolis}
 
 \input{include/preamble.tex}
+\input{include/knitr.tex}
 
 % -----------------------------------------------
 % Title
@@ -17,7 +18,7 @@
 \begin{document}
 
 \input{include/shared.tex}
-\newcommand{\sectiontitle}{Title}
+\newcommand{\sectiontitle}{}
 \newcommand{\currenttitle}{}
 
 \maketitle
@@ -27,5 +28,7 @@
 \subfile{sections/10-linguistics.tex}
 \subfile{sections/20-memory.tex}
 \subfile{sections/30-ascii.tex}
+
+\input{test.tex}
 
 \end{document}
