@@ -1,0 +1,37 @@
+= textenc
+
+A presentation on text encoding and Unicode.
+
+== Building
+
+Requirements:
+
+. Python 3.6+
+. R 4.0
+
+To build on Unix/Linux/macOS:
+
+[source,shell]
+----
+./install.py install
+. local/activate
+latexmk                     # build should be at target/index.pdf
+
+deactivate                  # when leaving
+----
+
+To build on Windows (not tested):
+
+[source,powershell]
+----
+python3 install.py install
+. local/activate.ps1
+latexmk                     # build should be at target/index.pdf
+
+deactivate                  # when leaving
+----
+
+== License
+
+This project is licensed under the MIT license. See link:LICENSE.txt[LICENSE.txt] for more
+details.
