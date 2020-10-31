@@ -128,6 +128,12 @@
 %
 % The 7-bit ASCII encoding simply stores these translated code points in order.
 % In all, "Hi" takes up 14 bits, the first 7 dedicated to H, and the remaining for i.
+%
+% Like endianness, bits can be ordered starting from least significant bit or most significant
+% bit.
+% But in modern computers, where the octet or byte is the basic unit of memory indexing,
+% we're not really gonna worry about that.
+% In the figure below, we've shown it starting from the most significant bit.
   128 characters \textrightarrow{} $2^7$ \textrightarrow{} 7 bits \\
 
   \vspace*{1.5em}
@@ -182,26 +188,15 @@
 \end{frame}
 
 % ---------------------------
-\renewcommand{\currenttitle}{Writing an ASCII encoder}
+\renewcommand{\currenttitle}{Writing an ASCII decoder}
 \begin{frame}{\currenttitle}
-% Let's actually write an ASCII encoder. This shouldn't be too difficult.
-% The conversion of characters to code points and vice versa is typically done at the operating
-% system level.
+% Let's actually write an ASCII decoder for the 8-bit encoding.
+% This should be pretty trivial.
 %
-% In modern programming languages, the character data type is typically a primitive like int or
-% float that is a number.
-%
-% For demonstration's sake, we're going to simply pretend that the char data type in this Rust
-% code is not already a numerical value.
-  \lstdefinestyle{default}{%
-    basicstyle=\scriptsize,
-    showspaces=false,
-    showstringspaces=false,
-    showtabs=false,
-    tabsize=2
-  }
-  \lstset{style=default}
-  \lstinputlisting[language=Rust]{\subdir/32-encoder.rs}
+% Our input will be a vector of unsigned 8-bit integers representing the bytes of memory
+% we're reading.
+% We'll output a string with the decoded characters.
+  \lstinputlisting[language=Rust]{\subdir/32-decoder.rs}
 \end{frame}
 
 % ---------------------------
