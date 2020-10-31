@@ -1,10 +1,12 @@
 % -----------------------------------------------
 % Prelude
-\documentclass[xcolor,xtable]{beamer}
+\documentclass[xcolor={dvipsnames},xtable]{beamer}
 \usetheme{metropolis}
 
 \input{include/preamble.tex}
 \input{include/knitr.tex}
+
+\addbibresource{references.bib}
 
 % -----------------------------------------------
 % Title
@@ -28,5 +30,10 @@
 \subfile{sections/10-linguistics.tex}
 \subfile{sections/20-memory.tex}
 \subfile{sections/30-ascii.tex}
+
+\renewcommand{\sectiontitle}{References}
+\begin{frame}[allowframebreaks]{\sectiontitle}
+  \printbibliography[heading=none]
+\end{frame}
 
 \end{document}

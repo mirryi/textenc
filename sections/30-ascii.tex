@@ -1,7 +1,6 @@
 % -----------------------------------------------
 % chktex-file 44
 \documentclass[../index.tex]{subfiles}
-% \renewcommand{\subdir}{.}
 
 % -----------------------------------------------
 
@@ -119,6 +118,16 @@
 % The ASCII standard initially specified a 7-bit encoding to reduce costs in transmitting
 % data.
 % Below we can see that encoding the word "Hi" takes up 14 bits.
+%
+% If we refer back to our chart above, we see that the letter H is mapped to the code point 72,
+% or, in hex, 48.
+% In binary, that's 1001000.
+%
+% The lowercase i is mapped to the codepoint 105, or 69 in hex.
+% In binary, that's 1101001.
+%
+% The 7-bit ASCII encoding simply stores these translated code points in order.
+% In all, "Hi" takes up 14 bits, the first 7 dedicated to H, and the remaining for i.
   128 characters \textrightarrow{} $2^7$ \textrightarrow{} 7 bits \\
 
   \vspace*{1.5em}
@@ -141,7 +150,9 @@
 % For some 8-bit derivatives, since only 7 bits are needed to store the character, the
 % 8th bit is used as a parity bit for error checking. Others set it to 0.
 %
-% The 8-bit encoding for "Hi" takes up a 16 bits, or 2 bytes.
+% The 8-bit encoding for "Hi" therefore takes up a 16 bits, or 2 bytes.
+% The first 7 bits are dedicated to H, then a parity or empty bit.
+% Bits 9 to 15 are for i, and the 16th bit is another parity bit.
 %
 % Because ASCII-encoded characters only take up a single byte at most, we don't need to
 % worry about endianness.
@@ -153,9 +164,8 @@
 
   \begin{figure}
     \begin{bytefield}[bitwidth=1em,bitheight=\widthof{~Parity},
-                      boxformatting={\centering\scriptsize\itshape}]
-                     {16}
-      \bitheader{0,6,7,14,15} \\
+                      boxformatting={\centering\scriptsize\itshape}]{16} % chktex 6
+      \bitheader{0,6,7,8,14,15} \\
       \bitbox{7}{Encoded character} & \bitbox{1}{\rotatebox{90}{Parity}} &
       \bitbox{7}{Encoded character} & \bitbox{1}{\rotatebox{90}{Parity}}
     \end{bytefield}
@@ -172,13 +182,31 @@
 \end{frame}
 
 % ---------------------------
-\renewcommand{\currenttitle}{Writing an ASCII decoder}
-\begin{frame}[fragile]{\currenttitle}
+\renewcommand{\currenttitle}{Writing an ASCII encoder}
+\begin{frame}{\currenttitle}
+% Let's actually write an ASCII encoder. This shouldn't be too difficult.
+% The conversion of characters to code points and vice versa is typically done at the operating
+% system level.
+%
+% In modern programming languages, the character data type is typically a primitive like int or
+% float that is a number.
+%
+% For demonstration's sake, we're going to simply pretend that the char data type in this Rust
+% code is not already a numerical value.
+  \lstdefinestyle{default}{%
+    basicstyle=\scriptsize,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+  }
+  \lstset{style=default}
+  \lstinputlisting[language=Rust]{\subdir/32-encoder.rs}
 \end{frame}
 
 % ---------------------------
 \renewcommand{\currenttitle}{The drawbacks}
-\begin{frame}[fragile]{\currenttitle}
+\begin{frame}{\currenttitle}
 % As you can probably guess, there are some pretty obvious caveats to ASCII.
 %
 % Because the encoding stores one character in one byte, we can't store much else.
@@ -188,9 +216,7 @@
 % But there are obviously more than 256 characters in the world.
 % What if we want to write kanji? How do we encode and store that?
 % What about e with an acute accent to write words like résumé, or write French?
-
   What about all the other characters out there?
-
 \end{frame}
 
 % -----------------------------------------------
