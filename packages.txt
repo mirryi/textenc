@@ -1,10 +1,15 @@
+babel-english
+babel-japanese
 beamer
 beamertheme-metropolis
+biblatex
 bytefield
+csquotes
 enumitem
 fira
 grfext
 import
+listings
 luacode
 luatexbase
 pgfopts
