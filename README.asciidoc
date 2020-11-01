@@ -9,6 +9,8 @@ Requirements:
 * Python 3.6+
 * R 4.0
 
+=== Unix
+
 To build on Unix/Linux/macOS:
 
 [source,shell]
@@ -20,6 +22,8 @@ latexmk                     # build should be at target/index.pdf
 deactivate                  # when leaving
 ----
 
+=== Windows
+
 To build on Windows (not tested):
 
 [source,powershell]
@@ -29,6 +33,15 @@ python3 install.py install
 latexmk                     # build should be at target/index.pdf
 
 deactivate                  # when leaving
+----
+
+=== Docker
+
+To build with Docker:
+
+[source,shell]
+----
+DOCKER_BUILDKIT=1 docker build --output target .
 ----
 
 == License

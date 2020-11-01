@@ -1,0 +1,13 @@
+*
+
+!include
+!sections
+!index.tex
+!references.bib
+
+!sty
+!latexmkrc
+
+!renv
+!renv.lock
+!.Rprofile
