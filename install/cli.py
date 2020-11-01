@@ -64,7 +64,7 @@ def cli_parser(loaders: LoaderConfig) -> argparse.ArgumentParser:
     @subcommand(name='regenerate', args=regenerate_args)
     def regenerate_command(args):
         profile = profile_from_args(args)
-        installer = Installer(profile)
+        installer = Installer(profile, loaders)
         installer.regenerate(vars(args))
 
     return cli

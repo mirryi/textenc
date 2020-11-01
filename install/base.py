@@ -56,7 +56,7 @@ class Installer:
     def regenerate(self, kwargs):
         for ns, loader in self.loaders:
             args = self.__strip_namespace(kwargs, ns)
-            loader.install(args)
+            loader.regenerate(args)
         self.create_activate_files()
 
     def __strip_namespace(self, kwargs: dict, ns: str) -> DictAttr:
@@ -182,6 +182,12 @@ deactivate() {{
         unset _OLD_VIRTUAL_PATH
     fi
 
+    if [ -n "${{_OLD_TEXINPUTS:-}}" ]; then
+        TEXINPUTS="${{_OLD_TEXINPUTS:-}}"
+        export TEXINPUTS
+        unset _OLD_TEXINPUTS
+    fi
+
     # This should detect bash and zsh, which have a hash command that must
     # be called to get it to forget past commands.  Without forgetting
     # past commands the $PATH changes we made may not be respected
@@ -208,6 +214,10 @@ _OLD_VIRTUAL_PATH="$PATH"
 PATH="{bin}:$PATH"
 export PATH
 
+_OLD_TEXINPUTS="$TEXINPUTS"
+TEXINPUTS=".:./sty:"
+export TEXINPUTS
+
 # This should detect bash and zsh, which have a hash command that must
 # be called to get it to forget past commands.  Without forgetting
 # past commands the $PATH changes we made may not be respected
@@ -224,6 +234,11 @@ function global:deactivate([switch] $NonDestructive) {{
     if (Test-Path variable:_OLD_VIRTUAL_PATH) {{
         $env:PATH = $variable:_OLD_VIRTUAL_PATH
         Remove-Variable "_OLD_VIRTUAL_PATH" -Scope global
+    }}
+
+    if (Test-Path variable:_OLD_TEXINPUTS) {{
+        $env:TEXINPUTS = $variable:_OLD_TEXINPUTS
+        Remove-Variable "_OLD_TEXINPUTS" -Scope global
     }}
 
     if (Test-Path function:_old_virtual_prompt) {{
@@ -244,4 +259,8 @@ deactivate -nondestructive
 New-Variable -Scope global -Name _OLD_VIRTUAL_PATH -Value $env:PATH
 
 $env:PATH = "{bin}:" + $env:PATH
+
+New-Variable -Scope global -Name _OLD_TEXINPUTS -Value $env:TEXINPUTS
+
+$env:TEXINPUTS = ".:./sty:"
 """
