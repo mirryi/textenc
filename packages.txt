@@ -1,5 +1,4 @@
 babel-english
-babel-japanese
 beamer
 beamertheme-metropolis
 biblatex
@@ -8,9 +7,12 @@ csquotes
 enumitem
 fira
 grfext
+haranoaji
 import
 listings
 luacode
 luatexbase
+luatexja
+notocjksc
 pgfopts
 subfiles

@@ -203,7 +203,8 @@
 \end{frame}
 
 % ---------------------------
-\renewcommand{\currenttitle}{The drawbacks}
+\renewcommand{\currenttitle}{What about all the other characters out there?}
+\newcommand{\nonasciiitem}[2][???]{\item[] #2 \textrightarrow{} #1}
 \begin{frame}{\currenttitle}
 % As you can probably guess, there are some pretty obvious caveats to ASCII.
 %
@@ -214,7 +215,20 @@
 % But there are obviously more than 256 characters in the world.
 % What if we want to write kanji? How do we encode and store that?
 % What about e with an acute accent to write words like résumé, or write French?
-  What about all the other characters out there?
+  \begin{itemize}[leftmargin=*]
+    \nonasciiitem[101]{e}
+    \nonasciiitem{é}
+    \nonasciiitem{私}
+  \end{itemize}
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{Extended ASCII character sets}
+\begin{frame}{\currenttitle}
+  \textbf{ISO/IEC 8859\textendash{}1} \textendash{}
+    ASCII + characters sufficient for most western European languages \\
+  \textbf{ISO/IEC 8859\textendash{2}} \textendash{}
+    like ISO 8859\textendash{}1, but for eastern European languges \\
 \end{frame}
 
 % -----------------------------------------------
