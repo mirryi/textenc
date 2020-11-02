@@ -216,11 +216,30 @@
 % What if we want to write an e with an acute accent to write words like résumé, or write
 % French?
 % What about Chinese characters or Japanese kanji? How do we encode and store that?
-  \begin{itemize}[leftmargin=*]
-    \nonasciiitem[101]{e}
-    \nonasciiitem{é}
-    \nonasciiitem{私}
-  \end{itemize}
+  \begin{figure}
+    \begin{tikzpicture}[%
+      auto,
+      block/.style={
+        rectangle,
+        draw=black,
+        text width=3em,
+        align=center,
+        minimum height=3em,
+        outer sep=0.5em,
+      }
+    ]
+      \draw (0,0)     node[block] (Ec) {\Large e};
+      \draw (3,0)     node[block] (Eh) {\Large 101};
+      \draw (0,-1.5)  node[block] (Ac) {\Large é};
+      \draw (3,-1.5)  node[block, fill=black!20] (Ah) {\Large ???};
+      \draw (0,-3)    node[block] (Wc) {\Large 島};
+      \draw (3,-3)    node[block, fill=black!20] (Wh) {\Large ???};
+      \draw [thick, ->] (Ec.east) -- (Eh.west);
+      \draw [thick, ->] (Ac.east) -- (Ah.west);
+      \draw [thick, ->] (Wc.east) -- (Wh.west);
+    \end{tikzpicture}
+    \caption{What the heck do we do about these?}
+  \end{figure}
 \end{frame}
 
 % ---------------------------
@@ -265,7 +284,11 @@
 % ASCII because code point 0x24 is mapped to the general currency symbol rather than the dollar
 % sign.
 %
-% Another is UTF-8, and this is the one we'll be looking at next.
+% With these, we can cover more characters, but they're not very robust solutions.
+% And we'll see that there are other issues with simple encodings like these.
+%
+% Another multi-byte extended ASCII encoding is UTF-8, and this is the one we'll be looking at
+% next.
   \textbf{Shift JIS} \textendash{}
     Shift Japanese Industrial Standards, for encoding the Japanese language \\
   \textbf{UTF-8} \textendash{}
