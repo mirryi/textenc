@@ -2,7 +2,7 @@
 $out_dir = 'target';
 
 $pdf_mode = 1;
-$pdflatex = 'TEXINPUTS=".:./sty:$TEXINPUTS" lualatex -shell-escape';
+$pdflatex = 'TEXINPUTS=".:./sty:$TEXINPUTS" lualatex -interaction=nonstopmode -shell-escape';
 
 add_cus_dep('Rnw', 'Rnw_tex', 1, 'knitrlatex');
 sub knitrlatex {
