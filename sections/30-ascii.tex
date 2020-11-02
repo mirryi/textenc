@@ -213,8 +213,9 @@
 % of supported characters up to 256.
 %
 % But there are obviously more than 256 characters in the world.
-% What if we want to write kanji? How do we encode and store that?
-% What about e with an acute accent to write words like résumé, or write French?
+% What if we want to write an e with an acute accent to write words like résumé, or write
+% French?
+% What about Chinese characters or Japanese kanji? How do we encode and store that?
   \begin{itemize}[leftmargin=*]
     \nonasciiitem[101]{e}
     \nonasciiitem{é}
@@ -225,10 +226,50 @@
 % ---------------------------
 \renewcommand{\currenttitle}{Extended ASCII character sets}
 \begin{frame}{\currenttitle}
-  \textbf{ISO/IEC 8859\textendash{}1} \textendash{}
+% In attempts ameliorate these shortcomings, extended ASCII character sets.
+%
+% Probably most used is the ISO 8859, more commonly known as ISO Latin 1.
+% It extends the ASCII character set by using all 8-bits to store extra characters commonly
+% used in writing western European languages.
+%
+% These we call true extended ASCII, because they preserve the original ASCII character set.
+% There are also non-true extended ASCII character sets.
+%
+% How we'd encode these true extended 8-bit ASCII character sets is the same as with ordinary
+% US-ASCII.
+  \textbf{ISO/IEC 8859\textendash{1}} \textendash{}
     ASCII + characters sufficient for most western European languages \\
   \textbf{ISO/IEC 8859\textendash{2}} \textendash{}
-    like ISO 8859\textendash{}1, but for eastern European languges \\
+    like ISO 8859\textendash{}1, but for \textit{eastern} European languges \\
+
+  \vspace*{1em}
+
+  \begin{table}
+    \begin{tabular}{|c||c|c|c|c|c|c|c|c|}
+      \hline
+      char & À  & Á  & Ç  & È  & ä  & æ  & ñ  & ø    \\ \hline
+      dec  & 192& 193& 199& 200& 228& 230& 241& 248  \\
+      hex  & C0 & C1 & C7 & C8 & E4 & E6 & F1 & F8   \\
+      \hline
+    \end{tabular}
+    \caption{Select characters from ISO 8859\textendash{1}}
+  \end{table}
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{Multi-byte extended ASCII encodings}
+\begin{frame}{\currenttitle}
+% There are also multi-byte extended ASCII encodings.
+%
+% Shift JIS is an example of a multi-byte encoding. However, it's technically not true extended
+% ASCII because code point 0x24 is mapped to the general currency symbol rather than the dollar
+% sign.
+%
+% Another is UTF-8, and this is the one we'll be looking at next.
+  \textbf{Shift JIS} \textendash{}
+    Shift Japanese Industrial Standards, for encoding the Japanese language \\
+  \textbf{UTF-8} \textendash{}
+    Unicode Transformation Set \textendash{} 8-bit
 \end{frame}
 
 % -----------------------------------------------
