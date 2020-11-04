@@ -8,6 +8,7 @@ Requirements:
 
 * Python 3.6+
 * R 4.0
+* C++17 compiler (GCC/Clang/etc.)
 
 === Unix
 
