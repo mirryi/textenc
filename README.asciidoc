@@ -4,11 +4,15 @@ A presentation on text encoding and Unicode.
 
 == Building
 
-Requirements:
+Requirements for main document:
 
-* Python 3.6+
+* Python 3.6+ (or Docker or a TexLive installation)
 * R 4.0
 * C++17 compiler (GCC/Clang/etc.)
+
+Other targets:
+
+* Rust compiler
 
 === Unix
 
