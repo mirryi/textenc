@@ -11,10 +11,10 @@ DOCKER ?= docker
 
 .PHONY : index index-docker 32-ascii-decoder 41-utf8-decoder 42-utf8-encoder create-target
 
-index	: create-target index.tex $(wildcard sections/*) references.bib
+index : create-target index.tex $(wildcard sections/*) references.bib
 	$(LATEXMK)
 
-index-docker: create-target index.tex $(wildcard sections/*) references.bib
+index-docker : create-target index.tex $(wildcard sections/*) references.bib
 	DOCKER_BUILDKIT=1	$(DOCKER) build --output $(TARGET) .
 
 32-ascii-decoder : sections/32-decoder.rs create-target
@@ -26,5 +26,5 @@ index-docker: create-target index.tex $(wildcard sections/*) references.bib
 42-utf8-encoder : sections/42-utf8-encoder.cpp create-target
 	$(CC) $(CPPFLAGS) -o $(TARGET)/$@ $^
 
-create-target:
+create-target :
 	@mkdir -p $(TARGET)
