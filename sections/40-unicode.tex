@@ -71,7 +71,46 @@
 
 % ---------------------------
 \renewcommand{\currenttitle}{Writing a UTF-8 decoder}
+\newcommand{\decoderheaderlisting}[2]{%
+  \lstinputlisting[language=C++,captionpos=b,%
+                   firstline=#1,lastline=#2]{%
+    \subdir/41-utf8-parser.hpp}%
+}
 \begin{frame}{\currenttitle}
+  Let's write a UTF-8 decoder in C++ \\
+
+  We'll convert a vector of bytes into Unicode codepoints \\
+
+  \vspace*{2em}
+
+  Our header file:
+
+  \decoderheaderlisting{4}{7}
+\end{frame}
+
+% ---------------------------
+\begin{frame}{\currenttitle}
+  Our function signatures:
+
+  \decoderheaderlisting{1}{2}
+  \decoderheaderlisting{14}{18}
+\end{frame}
+
+% ---------------------------
+\begin{frame}{\currenttitle}
+  Byte mask constants we'll use to help process each byte:
+
+  \decoderheaderlisting{9}{12}
+\end{frame}
+
+% ---------------------------
+\newcommand{\decodercodelisting}[2]{%
+  \lstinputlisting[language=C++,captionpos=b,%
+                   firstline=#1,lastline=#2]{%
+    \subdir/41-utf8-parser.cpp}%
+}
+\begin{frame}{\currenttitle}
+  \decodercodelisting{8}{10}
 \end{frame}
 
 % ---------------------------
