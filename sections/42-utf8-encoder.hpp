@@ -1,4 +1,3 @@
-#include <optional>
 #include <vector>
 
 // Type alias for unsigned 8-bit integer.
@@ -10,9 +9,3 @@ const byte B2_MASK = 0x1F; // 0001 1111
 const byte B3_MASK = 0x0F; // 0000 1111
 const byte B4_MASK = 0x07; // 0000 0111
 const byte MB_MASK = 0x3F; // 0011 1111
-
-std::optional<codepoint>
-next_codepoint(std::vector<byte>::const_iterator &iter,
-               const std::vector<byte>::const_iterator &end);
-
-std::vector<codepoint> decode(const std::vector<byte> &bytes);

@@ -77,6 +77,27 @@
     \subdir/41-utf8-parser.hpp}%
 }
 \begin{frame}{\currenttitle}
+% Let's write a UTF-8 decoder in C++. Don't worry if you don't know any C++, I'll walk through
+% most of the code.
+%
+% We'll write a function convert a vector of UTF-8 encoded bytes into a vector of Unicode
+% codepoints.
+%
+% Note that we won't be preforming any validation, so this is far from production-ready.
+% We're simply assuming that the bytes are proper UTF-8.
+%
+% Here's part of our header file, where we'll define the function signatures and some constants.
+%
+% This is probably not a good practice, but we're going to alias unsigned char to a type called
+% byte, and unsigned int to a type called codepoint.
+% In C and C++, chars are 8-bit integers, and unsigned indicates that these values will always
+% be positive.
+% Thus, a byte, which we've defined as unsigned char, will simply be an 8-bit integer, representing
+% an actual byte.
+% Ints are 32-bit integers, so unsigned int denotes a positive 32-bit integer.
+%
+% We've given these names to make it clear that we're converting from a vectory of bytes to a
+% vector of codepoints.
   Let's write a UTF-8 decoder in C++ \\
 
   We'll convert a vector of bytes into Unicode codepoints \\
@@ -89,6 +110,37 @@
 \end{frame}
 
 % ---------------------------
+% Here are the functions we'll be implementing.
+%
+% Let's look at the second one first.
+% If you've ever written Java or any other C-family language, you'll probably realize that
+% we've define the function 'decode' that takes in a vector of bytes, of unsigned 8-bit
+% integers.
+%
+% A vector is similar to the ArrayList in Java and list in Python. It's simply a growable,
+% ordered container of values.
+%
+% const lets us know that this function won't be modifying the vector that's passed in.
+%
+% And vector<codepoint> indicates that the function is returning a vector of codepoints,
+% a vector of 32-bit unsigned integers.
+%
+% 'decode' will be the main function that we call to decode UTF-8 encoded bytes.
+%
+% Now let's look at the second one. This is a sort of auxilliary function that will help
+% 'decode' perform its logic.
+%
+% We pass in an iterator to a vector of bytes and step through it until we've decoded a
+% single codepoint. It'll modify the location of the iterator.
+% 'end' is another iterator to the same vector that will tell us inside 'next_codepoint'
+% if we've reached the end of the vector and there are no more bytes to process.
+%
+% 'next_codepoint' is going to return an optional, which is a sum type that contains a
+% value or contains null. Think of it as something or nothing.
+% We're returning either a codepoint, or we're returning nothing if we're in the middle
+% of decoding an codepoint and we run out of bytes to process.
+%
+% Don't worry too much about some of the other details.
 \begin{frame}{\currenttitle}
   Our function signatures:
 
@@ -98,6 +150,7 @@
 
 % ---------------------------
 \begin{frame}{\currenttitle}
+% Here are constants we'll use in 'next_codepoints'. We'll refer back to these later.
   Byte mask constants we'll use to help process each byte:
 
   \decoderheaderlisting{9}{12}
