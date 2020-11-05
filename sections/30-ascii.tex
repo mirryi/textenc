@@ -164,16 +164,16 @@
 % worry about endianness.
 % The first byte will be the first character; the second byte will be the second character.
 % Remember, endianness is only relevant to multi-byte data.
-  8-bit encoding \textrightarrow{} 7 bits + 1 parity or empty bit
+  8-bit encoding \textrightarrow{} 1 parity or empty bit + 7 bits
 
   \vspace*{0.5em}
 
   \begin{figure}
     \begin{bytefield}[bitwidth=1em,bitheight=\widthof{~Parity},
                       boxformatting={\centering\scriptsize\itshape}]{16} % chktex 6
-      \bitheader{0,6,7,8,14,15} \\
-      \bitbox{7}{Encoded character} & \bitbox{1}{\rotatebox{90}{Parity}} &
-      \bitbox{7}{Encoded character} & \bitbox{1}{\rotatebox{90}{Parity}}
+      \bitheader{0,1,7,8,9,15} \\
+      \bitbox{1}{\rotatebox{90}{Parity}} & \bitbox{7}{Encoded character} &
+      \bitbox{1}{\rotatebox{90}{Parity}} & \bitbox{7}{Encoded character}
     \end{bytefield}
     \caption{8-bit ASCII encoding for two characters}
   \end{figure}
@@ -181,7 +181,7 @@
   \begin{figure}
     \begin{bytefield}[bitwidth=1em]{16}
       \bitheader{0-15} \\ % chktex 8
-      \bitboxes{1}{1001000{\ } 1101001{\ }}
+      \bitboxes{1}{{\ }1001000 {\ }1101001}
     \end{bytefield}
     \caption{8-bit ASCII encoding for ``Hi''}
   \end{figure}
