@@ -1,0 +1,13 @@
+<<include = FALSE>>=
+library(Rcpp)
+sourceCpp(file = "43-utf8.cpp")
+codepoints <- test()
+@
+
+\small
+\begin{verbatim}
+  <<echo = FALSE, results = 'asis'>>=
+  codepoints
+  @
+\end{verbatim}
+\normalsize

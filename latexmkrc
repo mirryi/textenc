@@ -8,3 +8,5 @@ add_cus_dep('Rnw', 'Rnw_tex', 1, 'knitrlatex');
 sub knitrlatex {
   system("Rscript -e \"knitr::knit('$_[0].Rnw', output='$_[0].Rnw_tex')\"");
 }
+
+push @generated_exts, "o";
