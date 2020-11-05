@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "downlevelIteration": true,
+    "inlineSources": true,
+    "inlineSourceMap": true,
+    "lib": ["DOM", "ES2020"],
+    "module": "ES2020",
+    "moduleResolution": "Node",
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "outDir": "target",
+    "preserveConstEnums": true,
+    "resolveJsonModule": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "removeComments": true,
+    "target": "ES6"
+  },
+  "include": ["web/*"],
+  "exclude": ["node_modules"]
+}
