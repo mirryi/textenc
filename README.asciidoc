@@ -4,19 +4,19 @@ A presentation on text encoding and Unicode.
 
 == Building
 
-Requirements for main document:
+Requirements for main document (if not using Docker)
 
-* Python 3.6+ (or Docker or a TexLive installation)
+* Python 3.6+ or a TeX installation
 * R 4.0
 * C++17 compiler (GCC/Clang/etc.)
 
-Other targets:
+Other targets (see Makefile):
 
 * Rust compiler
 
 === Unix
 
-To build on Unix/Linux/macOS:
+To build on Unix/Linux/macOS without a TeX installation:
 
 [source,shell]
 ----
@@ -27,9 +27,17 @@ latexmk                     # build should be at target/index.pdf
 deactivate                  # when leaving
 ----
 
+With a TeX installation:
+
+[source,shell]
+----
+Rscript -e "renv::hydrate()"
+latexmk
+----
+
 === Windows
 
-To build on Windows (not tested):
+To build on Windows without a TeX installation (not tested):
 
 [source,powershell]
 ----
@@ -38,6 +46,14 @@ python3 install.py install
 latexmk                     # build should be at target/index.pdf
 
 deactivate                  # when leaving
+----
+
+With a TeX installation:
+
+[source,shell]
+----
+Rscript -e "renv::hydrate()"
+latexmk
 ----
 
 === Docker
