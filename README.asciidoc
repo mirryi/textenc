@@ -1,17 +1,21 @@
-= textenc
+= Text Encoding
 
-A presentation on text encoding and Unicode.
+A presentation on text encoding that reviews basic computer memory concepts 
+and covers ASCII and Unicode.
 
 == Building
 
 Requirements for main document (if not using Docker)
 
-* Python 3.6+ or a TeX installation
-* R 4.0
+* Python 3.6+
+** Alternatively, a TeX installation (see link:packages.txt[`packages.txt`] 
+   for list of extra required packages)
+* R 4.0+
 * C++17 compiler (GCC/Clang/etc.)
 
-Other targets (see Makefile):
+Other targets (see Makefile for details):
 
+* GNU Make
 * Rust compiler
 
 === Unix
@@ -22,9 +26,10 @@ To build on Unix/Linux/macOS without a TeX installation:
 ----
 ./install.py install
 . local/activate
-latexmk                     # build should be at target/index.pdf
+latexmk                       # or: make index
+                              # build should be at target/index.pdf
 
-deactivate                  # when leaving
+deactivate                    # when leaving the project directory
 ----
 
 With a TeX installation:
@@ -32,7 +37,8 @@ With a TeX installation:
 [source,shell]
 ----
 Rscript -e "renv::hydrate()"
-latexmk
+tlmgr install $(cat packages) # if missing any required packages
+latexmk                       # or: make index
 ----
 
 === Windows
@@ -43,9 +49,10 @@ To build on Windows without a TeX installation (not tested):
 ----
 python3 install.py install
 . local/activate.ps1
-latexmk                     # build should be at target/index.pdf
+latexmk                       # or: make index
+                              # build should be at target/index.pdf
 
-deactivate                  # when leaving
+deactivate                    # when leaving the project directory
 ----
 
 With a TeX installation:
@@ -53,7 +60,8 @@ With a TeX installation:
 [source,shell]
 ----
 Rscript -e "renv::hydrate()"
-latexmk
+# install any missing packages specified in packages.txt
+latexmk                       # or: make index
 ----
 
 === Docker
@@ -62,10 +70,10 @@ To build with Docker:
 
 [source,shell]
 ----
-DOCKER_BUILDKIT=1 docker build --output target .
+DOCKER_BUILDKIT=1 docker build --output target .  # build should be at target/index.pdf
 ----
 
 == License
 
-This project is licensed under the MIT license. See link:LICENSE.txt[LICENSE.txt] for more
-details.
+This project is licensed under the MIT license. See link:LICENSE.txt[LICENSE.txt]
+for more details.
