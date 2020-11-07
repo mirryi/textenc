@@ -9,6 +9,13 @@
     ]
   },
   "Packages": {
+    "knitr": {
+      "Package": "knitr",
+      "Version": "1.28",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "915a6f0134cdbdf016d7778bc80b2eda"
+    },
     "Rcpp": {
       "Package": "Rcpp",
       "Version": "1.0.5",
