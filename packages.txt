@@ -1,6 +1,7 @@
 babel-english
 beamer
 beamertheme-metropolis
+biber
 biblatex
 bytefield
 csquotes
