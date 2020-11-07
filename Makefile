@@ -1,6 +1,6 @@
 TARGET ?= target
 
-CPPFLAGS += -std=c++17 -lstdc++
+CPPFLAGS += -std=c++17 -lstdc++ -Wconversion -Wsign-conversion
 
 RUSTC ?= rustc
 RUSTC_FLAGS := --out-dir $(TARGET)
