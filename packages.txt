@@ -13,6 +13,5 @@ listings
 luacode
 luatexbase
 luatexja
-noto
 pgfopts
 subfiles
