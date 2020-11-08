@@ -3,6 +3,9 @@
 A presentation on text encoding that reviews basic computer memory concepts 
 and covers ASCII and Unicode.
 
+See Releases > Latest Development Build > assets > index.pdf for the latest 
+build.
+
 == Building
 
 Requirements for main document (if not using Docker)
