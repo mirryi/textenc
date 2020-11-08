@@ -24,7 +24,7 @@ RUN tlmgr path add
 RUN Rscript -e "renv::restore()"
 
 # Build PDF
-RUN latexmk
+RUN latexmk || latexmk
 
 # Copy build to output
 FROM scratch as export-stage
