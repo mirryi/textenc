@@ -1,11 +1,10 @@
-# Not compatible with musl
-FROM frolvlad/alpine-glibc AS build
+FROM ubuntu:latest as build
 ENV PATH="/root/bin:${PATH}"
-ARG CACHEBUST=1
 
 # Install packages
-RUN apk update
-RUN apk add R R-dev perl wget gnupg
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update
+RUN apt-get install -y r-base r-base-dev perl wget gnupg
 
 # Install TinyTeX
 WORKDIR /root
@@ -22,7 +21,7 @@ RUN tlmgr install $(cat packages.txt)
 RUN tlmgr path add
 
 # Hydrate R packages
-RUN Rscript -e "renv::hydrate()"
+RUN Rscript -e "renv::restore()"
 
 # Build PDF
 RUN latexmk

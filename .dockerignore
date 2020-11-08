@@ -8,7 +8,8 @@
 !sty
 !latexmkrc
 
-!renv
+!renv/activate.R
+!renv/settings.dcf
 !renv.lock
 !.Rprofile
 !packages.txt
