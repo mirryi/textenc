@@ -65,8 +65,64 @@
 \end{frame}
 
 % ---------------------------
+\renewcommand{\currenttitle}{Unicode encodings}
+\begin{frame}{\currenttitle}
+% Remember that Unicode defines the coded character set by assigning each character
+% a codepoint.
+% It doesn't specify which encoding you have to use to store these characters.
+%
+% The standard defines a few encodings, the most common of which are UTF-8 and UTF-16.
+%
+% The majority of websites are now encoded in UTF-8, and if you use a Unix-based system
+% like Linux or macOS, the default encoding is UTF-8.
+% For many modern programming languages, the encoding used internally for strings is UTF-8.
+% In Rust, every string is handled internally as valid UTF-8.
+%
+% If you use Microsoft Windows, the default internal encoding is UTF-16.
+% Java stores strings as UTF-16 internally.
+%
+% Of these, you should care the most about UTF-8. It's avoids complications found in
+% UTF-16 and UTF-32 and is the most widely used encoding.
+% The Web Hypertext Application Technology Working Group considers UTF-8 to be
+% best practice and states that any browser application should not use UTF-16.
+%
+% So, we're going to focus primarily on UTF-8 and discuss UTF-16 briefly at the end.
+  The Unicode standard defines a number of encoding formats:
+
+  \begin{itemize}
+    \item \textbf{UTF-8} \textendash{} 8-bit Unicode Transformation Format
+    \item[] UTF-16LE \textendash{} 16-bit Unicode Transformation Format LE
+    \item[] UTF-16BE \textendash{} UTF-16LE, but big-endian
+    \item[] UTF-32LE \textendash{} 32-bit Unicode Transformation Format LE
+    \item[] UTF-32BE \textendash{} UTF-32LE, but big-endian
+  \end{itemize}
+\end{frame}
+
+% ---------------------------
 \renewcommand{\currenttitle}{Examining UTF-8 encoding}
 \begin{frame}{\currenttitle}
+% Let's examine how characters are encoded and decoded to and from UTF-8.
+%
+% UTF-8 is a variable-width encoding, meaning each codepoint can take up a variable
+% number of bytes.
+% In the case of UTF-8, each codepoint is stored as in 1, 2, 3, or 4 bytes.
+% 4 bytes is enough to store every single character in the Universal Character Set.
+  UTF-8 is a \textbf{variable-width} encoding \\
+  \vspace*{1em}
+  Each codepoint is stored in \textbf{1 \textendash{} 4 bytes}
+
+  \vspace*{1em}
+
+  \begin{table}
+    \begin{tabular}{c c c}
+      Character & Codepoint   & Bytes required  \\ \hline
+      \$        & \hex{0024}  & 1               \\
+      ¢         & \hex{00A2}  & 2               \\
+      €         & \hex{20AC}  & 3               \\
+      𐍈         & \hex{10348} & 4
+    \end{tabular}
+    \caption{Number of bytes required to store certain characters}
+  \end{table}
 \end{frame}
 
 % ---------------------------
@@ -150,7 +206,7 @@
 
 % ---------------------------
 \begin{frame}{\currenttitle}
-% Here are constants we'll use in 'next_codepoints'. We'll refer back to these later.
+% Here are constants we'll use in 'next_codepoint'. We'll refer back to these later.
   Byte mask constants we'll use to help process each byte:
 
   \decoderheaderlisting{9}{12}
@@ -163,7 +219,23 @@
     \codedir/utf8-decoder.cpp}%
 }
 \begin{frame}{\currenttitle}
-  \decodercodelisting{8}{10}
+% We'll start by implementing 'next_codepoint'.
+% We'll be mutating the 'iter' iterator by consuming one or more bytes and converting
+% it into an integer.
+%
+% Here we're first checking if we've already reached the end of the bytes.
+% If so, we return an empty optional.
+% Remember that the optional is like 'something' or 'nothing'.
+% In this case, it's nothing.
+  \decodercodelisting{8}{13}
+\end{frame}
+
+% ---------------------------
+\begin{frame}{\currenttitle}
+% Let's start by handling the case where the next codepoint can be stored in a single
+% byte.
+% These are codepoints with values less than 128.
+  \decodercodelisting{15}{21}
 \end{frame}
 
 % ---------------------------
