@@ -15,13 +15,14 @@ RUN wget -qO- "https://yihui.org/tinytex/install-bin-unix.sh" | sh
 RUN /root/.TinyTeX/bin/*/tlmgr path add
 RUN tlmgr update --self
 
-# Checkout project
-COPY . /build
-WORKDIR /build
-
 # Install extra TeX packages
+WORKDIR /build
+COPY packages.txt /build
 RUN tlmgr install $(cat packages.txt)
 RUN tlmgr path add
+
+# Checkout project
+COPY . /build
 
 # Hydrate R packages
 RUN Rscript -e "renv::restore()"
