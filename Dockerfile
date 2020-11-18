@@ -17,15 +17,18 @@ RUN tlmgr update --self
 
 # Install extra TeX packages
 WORKDIR /build
-COPY packages.txt /build
+COPY packages.txt .
 RUN tlmgr install $(cat packages.txt)
 RUN tlmgr path add
 
-# Checkout project
-COPY . /build
-
 # Hydrate R packages
+COPY .Rprofile renv.lock .
+RUN mkdir ./renv
+COPY renv/activate.R renv/settings.dcf ./renv/
 RUN Rscript -e "renv::restore()"
+
+# Checkout project
+COPY . .
 
 # Build PDF
 RUN latexmk || latexmk
