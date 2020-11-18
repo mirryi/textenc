@@ -1,10 +1,13 @@
-FROM ubuntu:latest as build
+FROM ubuntu:18.04 as build
 ENV PATH="/root/bin:${PATH}"
 
 # Install packages
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
-RUN apt-get install -y r-base r-base-dev perl wget gnupg
+RUN apt-get install -y --fix-missing \
+  r-base r-base-dev perl wget gnupg \
+  fonts-firacode fontconfig
+RUN fc-cache -f -v
 
 # Install TinyTeX
 WORKDIR /root
