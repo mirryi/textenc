@@ -103,10 +103,25 @@
 \begin{frame}{\currenttitle}
 % Let's examine how characters are encoded and decoded to and from UTF-8.
 %
-% UTF-8 is a variable-width encoding, meaning each codepoint can take up a variable
-% number of bytes.
+% UTF-8 is a variable-width encoding, meaning each codepoint can take up a variable number
+% of bytes.
+%
+% Characters are assigned codepoint values via the Universial Character Set, and we convert
+% these values into binary to store in memory.
+%
 % In the case of UTF-8, each codepoint is stored as in 1, 2, 3, or 4 bytes.
+% For example, the dollar sign, with a codepoint value of 36 (in decimal), takes up 1 byte.
+% The Euro symbol, with a codepoint value of 8364 (in decimal), takes up 3 bytes.
 % 4 bytes is enough to store every single character in the Universal Character Set.
+%
+% Unfortunately, as we'll see, we can't simply map the binary value directly to bits in
+% memory like we did with ASCII.
+% That's because this is a variable-width encoding.
+% If we have a codepoint that takes up 2 bytes, followed by a codepoint that takes up 4 bytes,
+% then 1 byte, we need to somehow know where each codepoint starts and ends.
+%
+% Thus, we put certain patterns of bits at the start of each byte to indicate how many
+% bytes that codepoint takes up.
   UTF-8 is a \textbf{variable-width} encoding \\
   \vspace*{1em}
   Each codepoint is stored in \textbf{1 \textendash{} 4 bytes}
@@ -126,6 +141,166 @@
 \end{frame}
 
 % ---------------------------
+\begin{frame}{\currenttitle}
+% This table (basically stolen off Wikipedia) illustrates how this variable-width encoding
+% works.
+%
+% The leftmost column indicates the number of bytes required.
+% The second column indicates the range of codepoint values that are within that "category".
+%
+% As we can see from the first row, codepoints in the range 0x00 to 0x7F (0 to 127), inclusive,
+% are stored in a single byte.
+% Codepoints in the range 0x80 to 0x7FF (128 to 224), inclusive, are stored in a 2 bytes.
+% And so on for 3 and 4 bytes.
+%
+% In the last 4 columns are the layout of bits in memory.
+% The x's are placeholders for the actual bits of the codepoint values.
+%
+% First, let's look at the first row, the 1-byte case.
+% A codepoint that requires 1 byte to encode takes up, of course, 1 byte.
+% Notice that that byte always starts with the bit 0 and then has 7 placeholder x's.
+% That's why only codepoints between 0 and 127, inclusive, can be stored in 1 byte.
+%
+% Thus, when we're decoding UTF-8, if we see that the first bit is 0, we know that this
+% codepoint takes up only a single byte.
+%
+% Now the second row, the 2-byte case.
+% The Byte 1 column indicates that the first byte of the 2-byte case always starts with the
+% bits 110, followed by 5 bits that are the 5 most significant bits of the codepoint in binary.
+%
+% The Byte 2 column indicates that the second byte always starts with the bits 10, followed by
+% the last 6 bits of the codepoint.
+% So, if we see a byte that starts with 110, meaning any byte with a value between 192 and 223,
+% inclusive, we know it's the first byte in a codepoint that takes up 2 bytes.
+% Thus, we also know that the next byte must start with 10.
+%
+% To get the codepoint value, we simply extra the 5 bits in the first byte, and then append
+% the 6 bits in the second byte.
+% We could then convert that binary value into decimal or hex or whatever.
+%
+% It's a similar story for the 3-byte and 4-byte cases, except that the first byte starts
+% with 1110 and 11110, respectively.
+% Notice how every byte after the first in a group starts with 10.
+%
+% So, if we see a byte that starts with 1110, which is any byte with a value between 224 and
+% 239, inclusive, we know it's the first byte in a 3-byte codepoint.
+%
+% If we see a byte that starts with 11110, which is any byte with a value between 240 and 247,
+% inclusive, we know it's the first byte in a 4-byte codepoint.
+% We also know that the next 3 bytes will start with 10, so we can extract the last 6 bits
+% of each of those bytes and put them together.
+%
+% In the next slide, we'll look at a couple of examples to see how this plays out in practice.
+  This table illustrates how bits are structured in the encoding: \\[1em]
+  \begin{table}
+    \scriptsize\ttfamily
+    \begin{tabular}{rl llll}
+      \#  & Range                         & Byte 1    & Byte 2    & Byte 3    & Byte 4    \\ \hline
+      1   & U+0000\textendash{U+007F}     & 0xxxxxxx  &           &           &           \\
+      2   & U+0080\textendash{U+07FF}     & 110xxxxx  & 10xxxxxx  &           &           \\
+      3   & U+0800\textendash{U+FFFF}     & 1110xxxx  & 10xxxxxx  & 10xxxxxx  &           \\
+      4   & U+10000\textendash{U+10FFFF}  & 11110xxx  & 10xxxxxx  & 10xxxxxx  & 10xxxxxx
+    \end{tabular}
+    \sffamily
+    \caption{Layout of UTF-8 byte sequences}
+  \end{table}
+\end{frame}
+
+% ---------------------------
+\definecolor{darkgreen}{HTML}{5faf60}
+\newcommand{\redc}[1]{\textcolor{red}{#1}}
+\newcommand{\greenc}[1]{\textcolor{darkgreen}{#1}}
+\newcommand{\bluec}[1]{\textcolor{blue}{#1}}
+\newcommand{\magc}[1]{\textcolor{magenta}{#1}}
+\begin{frame}{\currenttitle}
+% Here's another table stolen off Wikipedia that uses some concrete examples to illustrate
+% how these bits are laid out.
+%
+% In the first and second columns, we have the graphic representation of the character and
+% the codepoint value (in hex) assigned to that character.
+%
+% In the third column, we have the binary representation of that codepoint value, and in
+% the fourth column, how that binary is stored in UTF-8 encoding.
+% The colors indicate which bits are stored in which bytes.
+%
+% Let's look at the dollar sign, whose codepoint value is 0x24, or 36.
+% In binary, that's 100100.
+% We can (and do) add a leading zero to that, which gives us 0100100. 7 bits.
+% So, as we mentioned above, since 36 is less than 128, we can store the dollar sign in a
+% single byte.
+% As per the specification, our byte starts with a 0, and then we put the 7 bits of our
+% codepoint.
+%
+% The cent symbol has a codepoint value of 0xA2, or 162.
+% In binary, that's 10100010.
+% 162 is greater than 128 and less than 224, so it takes 2 bytes to store.
+%
+% As per the specification, our first byte starts with 110, followed by the first 5 bits
+% of our codepoint in binary.
+% The second byte starts with 10, followed by the last 6 bits.
+%
+% In total, that's 11 bits.
+% 10100010 is only 8 digits, so we add 3 extra leading zeros to make this value fit.
+% Remember, in adding leading zeros, we're not changing the value of the codepoint.
+%
+% The first byte is 110, followed by the 5 first bits (which are in green): 00010.
+% Thus, 11000010.
+% The second byte is 10, followed by the last 6 bits (which are in red): 100010.
+% Thus, 10100010.
+% With that, we've encoded the cent symbol.
+%
+% To encode the euro and the hwair, which require 3 and 4 bytes, respectively, we do
+% similar transformations.
+% However, for the euro, the first byte will be 1110, followed by the first 4 bits,
+% and for the hwair, the first byte will be 11110, followed by the first 3 bits.
+  \begin{table}
+    \tiny\ttfamily
+    \begin{tabular}{c lr l}
+      Char  & Hex         & Binary                    & UTF-8             \\ \hline
+      \$    & \hex{0024}  & \redc{010 0100}           & 0\redc{0100100}   \\
+      ¢     & \hex{00A2}  & \greenc{000 10}\redc{10}
+                            \redc{0010}               & 110\greenc{00010}
+                                                        10\redc{100010}   \\
+      €     & \hex{20AC}  & \bluec{0010}
+                            \greenc{0000 10}\redc{10}
+                            \redc{1100}               & 1110\bluec{0010}
+                                                        10\greenc{000010}
+                                                        10\redc{101100}   \\
+      𐍈     & \hex{10348} & \magc{0 00}\bluec{01 0000}
+                            \greenc{0011 01}\redc{00}
+                            \redc{1000}               & 11110\magc{000}
+                                                        10\bluec{010000}
+                                                        10\greenc{001101}
+                                                        10\redc{001000}
+    \end{tabular}
+    \sffamily
+    \caption{Representation of UTF-8 characters}
+  \end{table}
+
+% Here we have a bit table for the UTF-8 encoding of the euro symbol and then the dollar sign.
+% If we read from left to right, we notice that our first bit starts with 1110. Thus, this
+% first codepoint must take up 3-bytes.
+% Notice how at positions 8 and 16, which are the start of the second and third bytes, it starts
+% with the bits 10, as per the specification.
+%
+% So, we would extract the bits in positions 3 to 7, 10 to 15, and 18 to 23 to get the binary
+% value of the first codepoint.
+%
+% We look at the remaining bytes.
+% Position 24 is the start of the next byte, and we see that it starts with a 0.
+% That means this next codepoint must take up only a single byte.
+% To get the binary value, we take the bits in positions 25 to 31.
+  \begin{figure}
+    \footnotesize
+    \begin{bytefield}{32}
+      \bitheader{0,7,8,15,16,23,24,31} \\
+      \bitboxes{1}{11100010 10000010 10101100 00100100}
+    \end{bytefield}
+    \caption{UTF-8 encoding of ``€\$''}
+  \end{figure}
+\end{frame}
+
+% ---------------------------
 \renewcommand{\currenttitle}{Writing a UTF-8 decoder}
 \newcommand{\decoderheaderlisting}[2]{%
   \lstinputlisting[language=C++,captionpos=b,%
@@ -135,6 +310,8 @@
     \codedir/utf8-decoder.hpp}%
 }
 \begin{frame}{\currenttitle}
+% Hopefully that all makes sense.
+%
 % Let's write a UTF-8 decoder in C++. Don't worry if you don't know any C++, I'll walk through
 % most of the code.
 %
@@ -158,12 +335,9 @@
 % vector of codepoints.
   Let's write a UTF-8 decoder in C++ \\
 
-  We'll convert a vector of bytes into Unicode codepoints \\
+  We'll convert a vector of bytes into Unicode codepoints \\[2em]
 
-  \vspace*{2em}
-
-  Our header file:
-  \vspace*{1em}
+  Our header file: \\[1em]
 
   \decoderheaderlisting{4}{7}
 \end{frame}
@@ -201,9 +375,7 @@
 %
 % Don't worry too much about some of the other details.
 \begin{frame}{\currenttitle}
-  Our function signatures:
-  \vspace*{1em}
-
+  Our function signatures: \\[1em]
   \decoderheaderlisting{1}{2}
   \decoderheaderlisting{14}{18}
 \end{frame}
@@ -211,9 +383,7 @@
 % ---------------------------
 \begin{frame}{\currenttitle}
 % Here are constants we'll use in 'next_codepoint'. We'll refer back to these later.
-  Byte mask constants we'll use to help process each byte:
-  \vspace*{1em}
-
+  Byte mask constants we'll use to help process each byte: \\[1em]
   \decoderheaderlisting{9}{12}
 \end{frame}
 
@@ -234,8 +404,7 @@
 % If so, we return an empty optional.
 % Remember that the optional is like 'something' or 'nothing'.
 % In this case, it's nothing.
-  Check if the iterator has reached the end; if so, return nothing: \\
-  \vspace*{1em}
+  Check if the iterator has reached the end; if so, return nothing: \\[1em]
   \decodercodelisting{8}{13}
 \end{frame}
 
@@ -259,8 +428,7 @@
 %
 % Then, we'll simply cast the byte value into an unsigned 32-bit integer and return
 % it.
-  Handle the 1-byte case: \\
-  \vspace*{1em}
+  Handle the 1-byte case: \\[1em]
   \decodercodelisting{15}{21}
 \end{frame}
 
@@ -311,8 +479,7 @@
 % Finally, the bitwise OR operation with acc puts these 6 bits into their place at the end
 % of the codepoint.
 % With that, we've successfully decoded the 2-byte case.
-  Handle the 2-byte case: \\
-  \vspace*{1em}
+  Handle the 2-byte case: \\[1em]
   \decodercodelisting{24}{35}
 \end{frame}
 
@@ -413,8 +580,7 @@
 % Thus, we have 4 bits from the first encoded byte, then 6 bits from the second byte, and
 % our final 6 bits from the third byte.
 
-  Handle the 3-byte case: \\
-  \vspace*{1em}
+  Handle the 3-byte case: \\[1em]
   \decodercodelisting{38}{50}
 \end{frame}
 
@@ -432,8 +598,7 @@
 % and 6 places.
 %
 % And with this, we've completed 'next_endpoint'.
-  Handle the 4-byte case: \\
-  \vspace*{1em}
+  Handle the 4-byte case: \\[1em]
   \decodercodelisting{52}{66}
 \end{frame}
 
@@ -448,13 +613,23 @@
 % of the bytes, and another that points to the end of bytes.
 % In a loop, we call 'next_codepoint' repeatedly and append the result of each call to a
 % vector that we return at the end of the function.
-  Implementing \texttt{decode}: \\
-  \vspace*{1em}
+  Implementing \texttt{decode}: \\[1em]
   \decodercodelisting{68}{82}
 \end{frame}
 
 % ---------------------------
 \begin{frame}[fragile]{\currenttitle}
+% Here's a small function that creates a vector of bytes.
+% Then, we pass it into decode to turn those bytes into codepoint values.
+%
+% We're passing the bytes in UTF-8 encoding for the cent symbol, the euro symbol, a Hangul
+% syllable, and the hwair.
+%
+% This u8 syntax before the string literal in C++ tells the compiler to encode it in UTF-8,
+% so that when we create our vector of bytes, it'll be bytes in UTF-8.
+%
+% If we call decode and print out the decimal values we get back, we can see that we get the
+% correct codepoint values.
   \lstinputlisting[language=C++,numbers=left,numbersep=8pt,%
                    firstline=10]{\subdir/43-utf8.cpp}
 
@@ -472,6 +647,16 @@
 
 % ---------------------------
 \renewcommand{\currenttitle}{Unicode's shortcomings}
+\begin{frame}{\currenttitle}
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{How to be Unicode-aware?}
+\begin{frame}{\currenttitle}
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{Unicode in language X?}
 \begin{frame}{\currenttitle}
 \end{frame}
 
