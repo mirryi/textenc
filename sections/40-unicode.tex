@@ -129,6 +129,8 @@
 \renewcommand{\currenttitle}{Writing a UTF-8 decoder}
 \newcommand{\decoderheaderlisting}[2]{%
   \lstinputlisting[language=C++,captionpos=b,%
+                   numbers=left,numbersep=8pt,
+                   firstnumber=#1,
                    firstline=#1,lastline=#2]{%
     \codedir/utf8-decoder.hpp}%
 }
@@ -161,6 +163,7 @@
   \vspace*{2em}
 
   Our header file:
+  \vspace*{1em}
 
   \decoderheaderlisting{4}{7}
 \end{frame}
@@ -199,6 +202,7 @@
 % Don't worry too much about some of the other details.
 \begin{frame}{\currenttitle}
   Our function signatures:
+  \vspace*{1em}
 
   \decoderheaderlisting{1}{2}
   \decoderheaderlisting{14}{18}
@@ -208,6 +212,7 @@
 \begin{frame}{\currenttitle}
 % Here are constants we'll use in 'next_codepoint'. We'll refer back to these later.
   Byte mask constants we'll use to help process each byte:
+  \vspace*{1em}
 
   \decoderheaderlisting{9}{12}
 \end{frame}
@@ -215,6 +220,8 @@
 % ---------------------------
 \newcommand{\decodercodelisting}[2]{%
   \lstinputlisting[language=C++,captionpos=b,%
+                   numbers=left,numbersep=8pt,
+                   firstnumber=#1,
                    firstline=#1,lastline=#2]{%
     \codedir/utf8-decoder.cpp}%
 }
@@ -227,6 +234,8 @@
 % If so, we return an empty optional.
 % Remember that the optional is like 'something' or 'nothing'.
 % In this case, it's nothing.
+  Check if the iterator has reached the end; if so, return nothing: \\
+  \vspace*{1em}
   \decodercodelisting{8}{13}
 \end{frame}
 
@@ -235,12 +244,148 @@
 % Let's start by handling the case where the next codepoint can be stored in a single
 % byte.
 % These are codepoints with values less than 128.
+%
+% We'll get the byte value the iterator is currently on and check if it's less than
+% 128.
+% Remember, this means that the most significant bit will be 0 and thus indicates
+% that this codepoint takes up only a single bit.
+% It also means that any valid 8-bit ASCII is also valid UTF-8.
+%
+% So, if it's greater than 128, the codepoint takes up more than a single byte, and
+% have to write other code to handle that.
+% But if it does happen to be less than 128, we consume the byte from the iterator by
+% incrementing it.
+% The next time we look at the iterator, it'll be pointing to the next byte value.
+%
+% Then, we'll simply cast the byte value into an unsigned 32-bit integer and return
+% it.
+  Handle the 1-byte case: \\
+  \vspace*{1em}
   \decodercodelisting{15}{21}
 \end{frame}
 
 % ---------------------------
+\begin{frame}{\currenttitle}
+% With the 1-byte case handled, let's handle the case where the codepoint is encoded in
+% 2 bytes.
+%
+% In the 2-byte case, we remember that the first byte will start with the bits 110,
+% and the second byte will start with the bits 10.
+% That means the first bit must be less than 224, or 0xE0 in hex.
+%
+% We'll again first check if the iterator has reached the end of the byte stream and
+% return nothing if it has.
+%
+% If not, we'll get the value of the next byte.
+% This is the second byte in our 2-byte codepoint.
+
+% We'll check if our first byte is less than 224.
+% If so, we again increment the iterator to consume that byte.
+%
+% Since we're assuming that the byte stream we've been given is valid UTF-8, we're just
+% assuming that the second byte starts with the bits 10.
+% The next two lines do the decoding of the 2 bytes into a codepoint value.
+%
+% Remember, we can't simply convert these 2 bytes into integers and add or multiply them.
+% When these bytes were encoded, the 5 most significant bits were taken and put in the
+% first byte.
+%
+% We perform a bitwise AND operation on this first byte and the B2_MASK value defined in
+% our header.
+% This eliminates the leading 110 so we're left with 000 and then our first 5 bits,
+% equal to just our first 5 bits.
+% Then we cast this value into a unsigned 32-bit integer, so we have 27 leading 0's.
+%
+% Finally, by shifting the bits by 6 places, we drop the 6 most significant bits of this
+% integer (which are all leading 0's) and add 6 least significant bits to the end.
+% This leaves us with 6 0's following our 5 bits, and it's in those 6 spaces where we'll
+% put the 6 bits decoded from the second byte.
+% We store this in acc.
+%
+% In the next line, we perform another bitwise AND operation, this time on the second byte
+% and the MB_MASK value defined in the header.
+% We know the first 2 bits of the second byte are 10.
+% We only care about the last 6 bits, so this operation eliminates those first two bits
+% into 0's.
+%
+% Finally, the bitwise OR operation with acc puts these 6 bits into their place at the end
+% of the codepoint.
+% With that, we've successfully decoded the 2-byte case.
+  Handle the 2-byte case: \\
+  \vspace*{1em}
+  \decodercodelisting{24}{35}
+\end{frame}
+
+% ---------------------------
+\begin{frame}{\currenttitle}
+% Naturally, we next handle the 3-byte case.
+%
+% We do the same checks and get the value of the third byte.
+% Then, since in the 3-byte case, the first byte must start with the bits 1110, we check
+% if the first byte is less than 240, or 0xF0.
+%
+% If so, we consume the iterator and decode these 3 bytes.
+%
+% Similar to in the 2-byte case, we apply a bit mask using the bitwise AND operator to the
+% first byte.
+% In this case, our mask is the B3_MASK value we defined earlier rather than B2_MASK.
+% This operation turns the four most significant bits, the 1110, into 0's, because we only
+% care about the last 4 bits.
+% Then, we shift these bits to the left again, except this time by 12 positions.
+%
+% We know that the second and third bytes will start with the bits 10, so we use the MB_MASK
+% again to turn those leading 2 bits into 0's for each byte.
+% The second byte's value is shifted left 6 positions and combined with the accumulated
+% value.
+% Finally, we combine the third byte's value with the accumulator and return the final value.
+%
+% Thus, we have 4 bits from the first encoded byte, then 6 bits from the second byte, and
+% our final 6 bits from the third byte.
+
+  Handle the 3-byte case: \\
+  \vspace*{1em}
+  \decodercodelisting{38}{50}
+\end{frame}
+
+% ---------------------------
+\begin{frame}{\currenttitle}
+% Handling the 4-byte case looks very similar to the previous logic.
+% Since we're assuming valid UTF-8, if the first bit doesn't start with 0, 110, or 1110, we
+% assume that it must start with 11110.
+%
+% For the first byte, we apply a bit mask again, except this time it's the B4_MASK that
+% changes the first 5 bits into 0's.
+% Since we have 18 bits (provided by the next three bits) to put at the end of the codepoint
+% value, we shift this value by 18 positions.
+% For the second, third, and fourth bytes, we use the MB_MASK and shift each value by 12,
+% and 6 places.
+%
+% And with this, we've completed 'next_endpoint'.
+  Handle the 4-byte case: \\
+  \vspace*{1em}
+  \decodercodelisting{52}{66}
+\end{frame}
+
+% ---------------------------
+\begin{frame}{\currenttitle}
+% Let's put it all together in 'decode'.
+%
+% Remember that the caller passes in a vector of bytes that they want decoded into codepoint
+% values.
+%
+% We create two iterators that we'll pass into 'next_codepoint', one that points to the start
+% of the bytes, and another that points to the end of bytes.
+% In a loop, we call 'next_codepoint' repeatedly and append the result of each call to a
+% vector that we return at the end of the function.
+  Implementing \texttt{decode}: \\
+  \vspace*{1em}
+  \decodercodelisting{68}{82}
+\end{frame}
+
+% ---------------------------
 \begin{frame}[fragile]{\currenttitle}
-  \lstinputlisting[language=C++,firstline=10]{\subdir/43-utf8.cpp}
+  \lstinputlisting[language=C++,numbers=left,numbersep=8pt,%
+                   firstline=10]{\subdir/43-utf8.cpp}
 
   \vspace*{1em}
 

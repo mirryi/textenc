@@ -8,26 +8,28 @@
 std::optional<codepoint>
 next_codepoint(std::vector<byte>::const_iterator &iter,
                const std::vector<byte>::const_iterator &end) {
-  if (iter == end) {
-    return {};
+  if (iter == end) { // Check if iterator has reached end;
+    return {};       // return nothing.
   }
 
-  auto b0 = *iter;
+  auto b0 = *iter; // Get next byte from iterator.
 
   // Decode 1 byte case
   if (b0 < 128) {
-    iter++;
-    return (codepoint)b0;
+    iter++;               // Consume this byte from iterator.
+    return (codepoint)b0; // Convert byte value to 32-bit int.
   }
 
   // Decode 2 byte case
-  if (++iter == end) {
-    return {};
+  if (++iter == end) { // Check if iterator reached end;
+    return {};         // return nothing.
   }
-  byte b1 = *iter;
+  auto b1 = *iter; // Get next byte.
 
-  if (b0 < 0xE0) {
-    iter++;
+  if (b0 < 0xE0) { // Check if within range for 2-byte case.
+    iter++;        // Consume this byte from iterator.
+
+    // Decode the 2 bytes and return a int value.
     codepoint acc = ((codepoint)(b0 & B2_MASK)) << 6;
     return acc | (codepoint)(b1 & MB_MASK);
   }
@@ -36,30 +38,40 @@ next_codepoint(std::vector<byte>::const_iterator &iter,
   if (++iter == end) {
     return {};
   }
-  byte b2 = *iter;
+  auto b2 = *iter;
 
-  if (b0 < 0xF0) {
+  if (b0 < 0xF0) { // Check if within range for 3-byte case.
     iter++;
+
+    // Decode the 3 bytes and return an int value.
     codepoint acc = ((codepoint)(b0 & B3_MASK)) << 12;
-    return acc | ((codepoint)(b1 & MB_MASK) << 6) | (codepoint)(b2 & MB_MASK);
+    acc = acc | ((codepoint)(b1 & MB_MASK) << 6);
+    return acc | (codepoint)(b2 & MB_MASK);
   }
 
   // Decode 4 byte case
   if (++iter == end) {
     return {};
   }
-  byte b3 = *iter;
+  auto b3 = *iter;
 
+  // Assume first byte must start with 11110.
   iter++;
+
+  // Decode 4 bytes and return an int value.
   codepoint acc = ((codepoint)(b0 & B4_MASK)) << 18;
-  return acc | ((codepoint)(b1 & MB_MASK) << 12) |
-         ((codepoint)(b2 & MB_MASK) << 6) | (codepoint)(b3 & MB_MASK);
+  acc = acc | ((codepoint)(b1 & MB_MASK) << 12);
+  acc = acc | ((codepoint)(b2 & MB_MASK) << 6);
+  return acc | (codepoint)(b3 & MB_MASK);
 }
 
+// Pass in a vector of bytes to decode into codepoints.
 std::vector<codepoint> decode(const std::vector<byte> &bytes) {
+  // Initialize iterators pointing to start and end of bytes.
   auto iter = bytes.cbegin();
   auto end = bytes.cend();
 
+  // Decode codepoints until there are no more bytes.
   std::vector<codepoint> codepoints = {};
   while (iter != end) {
     auto cp = next_codepoint(iter, end);
