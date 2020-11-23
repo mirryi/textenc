@@ -318,6 +318,77 @@
 
 % ---------------------------
 \begin{frame}{\currenttitle}
+% Let's use an example to better understand the code we just went through.
+%
+% Suppose we have these two bytes (which we assume to be valid UTF-8): 11000010 10100010.
+% We're not really sure what this decodes to yet, but let's find out.
+%
+% We read in the first byte (11000010), which has a value of 194.
+% Since 194 is greater than 127 but less than 224, we know that this codepoint is
+% a 2-byte case.
+%
+% Thus, we also read in our second byte (10100010).
+%
+% We know this is a 2-byte case, which means the first byte must start with the bits 110.
+% As in the code, we perfrom a bitwise AND between our first byte and a mask of 00011111.
+% If we manually go through each pair of bits and compute the AND operation, the first
+% three bits (110) of our first byte become zero, and everthing else if left as is.
+% So, we get 00000010.
+%
+% We cast this value to an unsigned 32-bit integer, so instead of 6 leading zeros, we have
+% 30 leading zeroes.
+%
+% Next, we perform the bit shifting.
+% We shift all the bits to the left by 6 positions, dropping any overflow and added zeros
+% to the end.
+% Our new value is equal to 10000000, with 24 leading zeros.
+%
+% Now, we handle the second byte (10100010).
+% We know that the second byte, as per the UTF-8 specification, starts with the bits 10.
+% By computing a bitwise AND operation between our second byte and a mask value of 00111111,
+% we turn the leading 10 into 00, resulting in 00100010.
+%
+% We cast this value to a unsigned 32-bit integer to combine with our transformed first byte.
+%
+% The bitwise OR operation turns the last 6 0's in our transformed first byte into our
+% transformed second byte, resulting in the final value of 10100010.
+%
+% 10100010 in decimal is 162, and 0xA2 in hex.
+% This is the Unicode codepoint value for the cent symbol ¢.
+  \begin{center}
+    \begin{tikzpicture}[ampersand replacement=\&,%
+      block/.style={%
+        rectangle,
+        align=center,
+        outer sep=0.2em,
+        font=\ttfamily\footnotesize,
+      }]%
+      \draw (0,0) node[block] (init0) {\textcolor{black!60}{110}\underline{00010}} ;
+      \draw (0,-1.5) node[block, align=right] (mask0) {11000010 \\ \underline{\& 00011111} \\ = 00000010} ;
+      \draw (0,-3) node[block] (cast0) {...\rpt[2]{0}0000010} ;
+      \draw (0,-4.5) node[block, align=right] (shift0) {...010\underline{000000}} ;
+
+      \draw [thick, ->] (init0.south) -- (mask0.north) ;
+      \draw [thick, ->] (mask0.south) -- (cast0.north) ;
+      \draw [thick, ->] (cast0.south) -- (shift0.north) ;
+
+      \draw (5,0) node[block] (init1) {\textcolor{black!60}{10}\underline{100010}} ;
+      \draw (5,-1.5) node[block,align=right] (mask1) {10100010 \\ \underline{\& 00111111} \\ = 00100010} ;
+      \draw (5,-3) node[block] (cast1) {...\rpt[2]{0}100010} ;
+
+      \draw [thick, ->] (init1.south) -- (mask1.north) ;
+      \draw [thick, ->] (mask1.south) -- (cast1.north) ;
+
+      \draw [thick, ->] (cast1.south) to[out=270,in=0] (shift0.east) ;
+
+      \draw (3,-6) node[block] (final) {\rpt[28]{0}\underline{10100010}} ;
+      \draw [thick, ->] (shift0.south) to[out=270,in=90,looseness=0.5] (final.north) ;
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+% ---------------------------
+\begin{frame}{\currenttitle}
 % Naturally, we next handle the 3-byte case.
 %
 % We do the same checks and get the value of the third byte.

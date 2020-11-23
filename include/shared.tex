@@ -11,3 +11,8 @@
 
 % \hex{n} --> 0xn
 \newcommand{\hex}[1]{0x#1}
+
+\newcounter{loopcntr}
+\newcommand{\rpt}[2][1]{%
+  \forloop{loopcntr}{0}{\value{loopcntr}<#1}{#2}%
+}
