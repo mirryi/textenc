@@ -9,11 +9,14 @@
 % -----------------------------------------------
 \renewcommand{\sectiontitle}{Unicode}
 \section{\sectiontitle}
-% I hope you found ASCII pretty simple, because it's only going to get more complicated from
-% here on out.
+% Moving from ASCII, we're going to examine Unicode, a standard created in the 1980s that now
+% dominates the world.
+%
+% I hope you found ASCII pretty simple, because it's only going to get more complicated from a%
+% technical perspective here on out.
 %
 % Why's that?
-% Because language is complicated.
+% Because text is complicated.
 
 % ---------------------------
 \renewcommand{\currenttitle}{The problems with ASCII}
@@ -24,14 +27,16 @@
 %
 % The original ASCII character set only supported the basic English alphabet, the ten Arabic
 % numeral digits, some punctuations symbols, and some other unreadable symbols.
-% As we've mentioned before, this isn't really going to cut it once you move outside of English.
+% As we've mentioned before, this isn't really going to cut it once you move outside of basic
+% English.
 %
 % The extended ASCII character sets like Latin 1 tried to help this, but then we have many
-% different widely adopted but largely incompatible character sets.
+% different widely adopted but largely incompatible character sets in different parts of the
+% world.
 % When you're transforming data across the globe into different systems using different
 % character sets and encodings, this is going to be a problem.
 %
-% And as we'll see in a brief examination of other languages, the terminology and design
+% And as we'll see in a brief examination of other scripts, the terminology and design
 % behind ASCII is too naïve to support many kinds of languages.
   Let's review: \\
 
@@ -57,11 +62,67 @@
 % ---------------------------
 \renewcommand{\currenttitle}{The Universal Character Set}
 \begin{frame}{\currenttitle}
+% Remember that the first component in handling text in the digital space is the character
+% set.
+% We have to define what characters we're handling, and to encode them, what numerical
+% values we assign each one.
+%
+% The Unicode standard defines the Universal Coded Character Set (UCS) that contains most
+% of the characters in most modern scripts.
+% Every year, new characters are added to the set to increase coverage.
+%
+% The allowed codepoint values range from 0 to 10FFFF in hex.
+% A portion of these codepoints are called surrogate codepoints (which we won't really talk
+% about) so there are 1,112,064 possible codepoints.
+% Many of the values are also unassigned to help make Unicode more future-proof and reduce
+% conflicts with other encoding standards.
+%
+% Each character is also assigned a General Category that indicates that characteristics of
+% that character.
+% Some of the major categories include Letter, Number, Puntuation, Separator, etc.
 \end{frame}
 
 % ---------------------------
 \renewcommand{\currenttitle}{The seventeen Unicode planes}
 \begin{frame}{\currenttitle}
+% These 1 million+ codepoints are split into seventeen 'planes', numbered 0 to 16.
+% Each 'plane' is kind of like a semantic group.
+%
+% The first of these, plane 0, is the Basic Multilingual Plane, and contains characters for
+% almost all modern languages.
+% The codepoint values range from 0000 to FFFF, with some reserved values, resulting in a
+% total of 65,472 allocated codepoints.
+% Of those, 55,503 have been assigned a character.
+%
+% This includes Latin characters, other European scripts, Middle Eastern, African, South and
+% Central Asian scripts, and others.
+% Most of the codepoints are used to encode Chinese, Japanese, and Korean (CJK) characters.
+%
+% So most of the time, you're dealing with the Basic Multilingual Plane.
+  \vspace*{1em}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{\subdir/42-bmp.png}
+    \caption{Basic Multilingual Plane}
+  \end{figure}
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{The seventeen Unicode planes}
+\begin{frame}{\currenttitle}
+% The second plane is the Supplementary Multilingual Plane, or SMP.
+% This contains historical characters and others that are general unused today.
+%
+% Examples include Linear B (the script used to write Mycenaean Greek), Egyption hieroglyphs,
+% and cuneiform.
+% This plane also includes musical and mathematical symbols, Emoji, and other pictographic
+% sets.
+  \vspace*{1em}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{\subdir/42-smp.png}
+    \caption{Supplementary Multilingual Plane}
+  \end{figure}
 \end{frame}
 
 % ---------------------------
