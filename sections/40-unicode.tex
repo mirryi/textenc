@@ -48,6 +48,39 @@
 \end{frame}
 
 % ---------------------------
+\renewcommand{\currenttitle}{Unicode}
+\begin{frame}{\currenttitle}
+% So let's talk about Unicode.
+% Computer scientists in the 80s recognized the limitations of traditional encodings
+% such as ASCII and its derivatives.
+% Thus, Unicode was designed with the explicit goal of unifying text processing across all
+% languages.
+%
+% In the late 80s, a Unicode working group was formed to design the first draft of this new
+% standard.
+% In 1991, the Unicode Consortium, the international organization that maintains and updates
+% the Unicode standard, was created, and the first publication of Unicode was made in that
+% same year.
+%
+% Every year, Unicode has undergone revisions to include more characters, define encoding
+% forms, and other relevant changes.
+% As of 2020, the latest major version of Unicode is version 13.
+% Version 14.0 is planned to release in March 2021.
+  \textbf{Unicode} \textendash{} standard for consistent digital text handling across the world
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{How is it different?}
+\begin{frame}{\currenttitle}
+% I mentioned that Unicode has been designed to work with just about every language used in
+% moder times and avoids the caveats of ASCII and similar encodings to do that, but how is
+% that accomplished?
+%
+% Distinction #1:
+  ASCII maps glyphs, Unicode maps \textbf{graphemes}
+\end{frame}
+
+% ---------------------------
 \renewcommand{\currenttitle}{Even more precise terminology}
 \begin{frame}{\currenttitle}
 \end{frame}
@@ -60,6 +93,18 @@
 \end{frame}
 
 % ---------------------------
+\renewcommand{\currenttitle}{Problem: character coverage}
+\begin{frame}{\currenttitle}
+% So how does Unicode's design solve the problems that plague ASCII?
+%
+% Let's look at the first problem we mentioned: character coverage.
+% ASCII was sufficient for basic English, and extended regional variants covered some accented
+% characters and other symbols.
+%
+%
+\end{frame}
+
+% ---------------------------
 \renewcommand{\currenttitle}{The Universal Character Set}
 \begin{frame}{\currenttitle}
 % Remember that the first component in handling text in the digital space is the character
@@ -67,8 +112,8 @@
 % We have to define what characters we're handling, and to encode them, what numerical
 % values we assign each one.
 %
-% The Unicode standard defines the Universal Coded Character Set (UCS) that contains most
-% of the characters in most modern scripts.
+% The Unicode standard defines the Universal Coded Character Set (UCS), a superset of the ISO
+% 8859-1 character set, that contains most of the characters in most modern scripts.
 % Every year, new characters are added to the set to increase coverage.
 %
 % The allowed codepoint values range from 0 to 10FFFF in hex.
