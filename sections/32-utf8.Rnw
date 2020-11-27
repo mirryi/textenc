@@ -1,6 +1,6 @@
 <<include = FALSE>>=
 library(Rcpp)
-sourceCpp(file = "43-utf8.cpp")
+sourceCpp(file = "32-utf8.cpp")
 codepoints <- test()
 @
 
