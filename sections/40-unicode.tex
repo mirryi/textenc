@@ -51,10 +51,8 @@
 \renewcommand{\currenttitle}{Unicode}
 \begin{frame}{\currenttitle}
 % So let's talk about Unicode.
-% Computer scientists in the 80s recognized the limitations of traditional encodings
-% such as ASCII and its derivatives.
-% Thus, Unicode was designed with the explicit goal of unifying text processing across all
-% languages.
+% Unicode was designed with the explicit goal of somehow transcending these limitations and
+% unifying text processing across all written languages.
 %
 % In the late 80s, a Unicode working group was formed to design the first draft of this new
 % standard.
@@ -70,53 +68,26 @@
 \end{frame}
 
 % ---------------------------
-\renewcommand{\currenttitle}{How is it different?}
-\begin{frame}{\currenttitle}
-% I mentioned that Unicode has been designed to work with just about every language used in
-% moder times and avoids the caveats of ASCII and similar encodings to do that, but how is
-% that accomplished?
-%
-% Distinction #1:
-  ASCII maps glyphs, Unicode maps \textbf{graphemes}
-\end{frame}
-
-% ---------------------------
-\renewcommand{\currenttitle}{Even more precise terminology}
-\begin{frame}{\currenttitle}
-\end{frame}
-
-% ---------------------------
-\renewcommand{\currenttitle}{How does Unicode define `character'?}
-\begin{frame}{\currenttitle}
-  ``The smallest component of written language that has semantic value; refers to the
-    abstract meaning and/or shape, rather than a specific shape\ldots''
-\end{frame}
-
-% ---------------------------
 \renewcommand{\currenttitle}{Problem: character coverage}
-\begin{frame}{\currenttitle}
-% So how does Unicode's design solve the problems that plague ASCII?
-%
-% Let's look at the first problem we mentioned: character coverage.
-% ASCII was sufficient for basic English, and extended regional variants covered some accented
-% characters and other symbols.
-%
-%
+\begin{frame}[standout]
+% I mentioned that Unicode has been designed to work with just about every language used in
+% modern times and avoids the caveats of ASCII and similar encodings to do that, but how is
+% that accomplished?
+  Problem: character coverage
 \end{frame}
 
 % ---------------------------
 \renewcommand{\currenttitle}{The Universal Character Set}
 \begin{frame}{\currenttitle}
-% Remember that the first component in handling text in the digital space is the character
-% set.
-% We have to define what characters we're handling, and to encode them, what numerical
-% values we assign each one.
-%
 % The Unicode standard defines the Universal Coded Character Set (UCS), a superset of the ISO
 % 8859-1 character set, that contains most of the characters in most modern scripts.
 % Every year, new characters are added to the set to increase coverage.
 %
-% The allowed codepoint values range from 0 to 10FFFF in hex.
+% Like with ASCII and other standards, each character is assigned a numerical value, a
+% codepoint.
+%
+% For the Universal Coded Character Set, the allowed codepoint values range from 0 to 10FFFF
+% in hex.
 % A portion of these codepoints are called surrogate codepoints (which we won't really talk
 % about) so there are 1,112,064 possible codepoints.
 % Many of the values are also unassigned to help make Unicode more future-proof and reduce
@@ -168,6 +139,180 @@
     \includegraphics[width=0.8\textwidth]{\subdir/42-smp.png}
     \caption{Supplementary Multilingual Plane}
   \end{figure}
+\end{frame}
+
+% ---------------------------
+\begin{frame}[standout]
+% So, we've basically solved our first two bullet points.
+% The UCS covers most characters in most scripts used today, and this coverage means that
+% everyone across the world can use Unicode instead of regional standards.
+%
+% That leaves the third bullet.
+%
+% We're still mapping characters, and so far, everything is pretty similar to ASCII.
+% But here's where we need to stop and consider the following:
+%
+% The concept of a character might seem straight-forward, but once venture into the realm
+% of other languages and writing systems, it becomes ambiguous.
+  Problem: what \textit{is} a character, anyway?
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{Characters: not so simple}
+\begin{frame}{\currenttitle}
+% An oft-cited example is Arabic.
+% What counts as a 'character' in Arabic?
+% <https://www.youtube.com/watch?v=qOcxwRc2Epg>
+%
+% The shapes of Arabic letters can change depending on their location in the word.
+% The letters change to match up with the rules of the language.
+%
+% Here we have Arabic for "Arabic alphabet", and as we hit backspace, we can see the
+% letters change as adjacent letters are deleted.
+% These dots and small slashes, known as diacritic marks, augment letters to serve
+% as phonetic guides or vowel indicators.
+% Marks can indicate that some grouping is what could be understood as a 'character'.
+%
+% I hope you can see why such a system would be problematic to handle for a system
+% where we assume that a "character" looks like one thing.
+%
+% It would be wildly inefficient and unwieldy to have a different codepoint for each visual
+% form of each letter and have to replace codepoints with totally different ones when a
+% single letter is deleted.
+\end{frame}
+% ---------------------------
+\renewcommand{\currenttitle}{Graphemes, not glyphs}
+\begin{frame}{\currenttitle}
+% Solution: Unicode maps graphemes to codepoints, not glyphs.
+%
+% A glyph is composed of the unique marks that collectively add up to the symbol we see.
+% It's the visual representation.
+%
+% A grapheme is the underlying representation of a glyph.
+% Rather than thinking of some visual representation, it is easier to think of a specific
+% grapheme as an abstract concept representing something.
+%
+% In English and other similar languages, a grapheme is like the letter A or the period.
+% In hiragana, ひ is a grapheme.
+% In some other languages, these might also be diacritic marks like the diaeresis or the
+% acute accent.
+%
+% It's important to separate the glyph and the grapheme.
+% The display is not the same as the data.
+% So, graphemes and glyphs do not necessarily match up 1-to-1.
+  Unicode maps codepoints to \textbf{graphemes} instead of \textbf{glyphs} \\[1.5em]
+  \begin{columns}[t]
+    \column{0.45\textwidth}
+    \textbf{Grapheme} \textendash{} smallest functional unit of writing, represents an
+      abstract concept (data)
+
+    \column{0.45\textwidth}
+    \textbf{Glyph} \textendash{} visual representation of a readable symbol (display) \\[1em]
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.6\columnwidth]{\subdir/42-glyph.png}
+    \end{figure}
+  \end{columns}
+\end{frame}
+
+% ---------------------------
+\begin{frame}{\currenttitle}
+% Another example to help distinguish between glyphs and graphemes.
+%
+% The UCS includes the 'micro sign' and the Greek small letter 'mu', and both
+% look like this u with a tail.
+% I'm sure you've used it in your math and physics classes.
+%
+% Visually, they look similar or the same, but they are functionally different.
+% The micro sign is for the SI unit prefix, micro (10^-6).
+% The Greek lowercase letter mu is the 12th letter of the Greek alphabet.
+% Thus, though they might be the same glyph, they are different graphemes.
+%
+% In a similar but reverse sense, a single grapheme can have many glyphs.
+% For example, think of how the number 2 looks different in a serif font like Times New Roman
+% vs. a sans-serif font like Liberation Sans.
+% We have the same grapheme, the number 2, but different glyphs.
+  \begin{columns}[t]
+    \column{0.45\textwidth}
+    \textbf{}
+  \end{columns}
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{Why does this matter?}
+\begin{frame}{\currenttitle}
+% This distinction between display and data is incredibly important because it allows us
+% to handle text in languages where these two concepts must be considered separately.
+%
+% In our Arabic example, letters are graphemes.
+% When we had the string "Arabic alphabet" in Arabic, we had a visual form.
+% But when we started deleting letters, the appearance of individual letters changed---
+% the glyphs changed.
+% But the underlying graphemes are still the same graphemes.
+%
+% In many writing systems like Arabic, there is no easy way to say what is a character
+% based on the visual representation.
+% We need to look at them at a deeper level, and that is the semantic level, which gives
+% us graphemes.
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{Fonts: What stuff looks like}
+\begin{frame}{\currenttitle}
+% The consequence of this design, where what stuff looks like can depend on which codepoints
+% are next to each other, is that Unicode doesn't really define what stuff should look like.
+%
+% It leaves the rendering up to the implementor.
+%
+% That's where fonts come in.
+% Fonts tell your console or graphical system what the text should look like---the glyphs to
+% use.
+% The renderer will see that certain graphemes are next to each other and select the correct
+% glyph from the font specification.
+%
+% However, fonts are way out of scope for this talk, so that's all we'll say about that.
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{Composing graphemes}
+\begin{frame}{\currenttitle}
+% This combining of graphemes forms what's called a grapheme cluster.
+% It's these grapheme clusters that we usually percieve as "characters".
+%
+% The notion of combining graphemes to form "characters" isn't only for scripts like Arabic.
+% It's relevant in English and other European languages as well.
+%
+% Suppose we have the word 'Amélie', where the third letter is an e with an acute accent.
+% In this table, we can see the two ways we can represent the accented e in Unicode.
+%
+% For backwards compatibility, the Universal Character Set is a superset of ISO 8859-1,
+% which is the Latin-1 extended ASCII character set.
+% The Latin-1 set includes the e with the accute accent, so UCS also has that character
+% and uses the same codepoint.
+%
+% We see the usage of that codepoint in the first and second rows.
+% The accented e is mapped to a single codepoint.
+%
+% However, the acute accent is a diacritic mark used in many other places other than this
+% accent character.
+% For this reason, the UCS maps the acute accent itself to a codepoint.
+% In the third and fourth rows, we can see that the e and the accent are separate graphemes.
+% When put in this sequence, where the e is followed by the accent, this cluster is
+% canonically equivalent to the codepoint in the second row.
+%
+% When it's time to display this string and the renderer sees the codepoints 0065 and 0301
+% next to each other, it will recognize that this cluster corresponds to the accented e
+% and will display the correct glyph.
+  \begin{table}
+    \footnotesize
+    \begin{tabular}{|l||c|c|c|c|c|c|c|} \hline
+      NFC character & A     & m     & \multicolumn{2}{c|}{é}     & l     & i     & e \\ \hline
+      NFC codepoint & 0041  & 006d  & \multicolumn{2}{c|}{00e9}  & 006c  & 0069  & 0065 \\ \hline
+      NFD codepoint & 0041  & 006d  & 0065        & 0301        & 006c  & 0069  & 0065 \\ \hline
+      NFD character & A     & m     & e           & ◌́           & l     & i     & e \\ \hline
+    \end{tabular}
+    \caption{\textit{Amélie} with two equivalent Unicode forms}
+  \end{table}
 \end{frame}
 
 % ---------------------------
