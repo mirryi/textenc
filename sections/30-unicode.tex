@@ -172,6 +172,7 @@
 % These dots and small slashes, known as diacritic marks, augment letters to serve
 % as phonetic guides or vowel indicators.
 % Marks can indicate that some grouping is what could be understood as a 'character'.
+% Different sequences of letters form special ligature forms.
 %
 % I hope you can see why such a system would be problematic to handle for a system
 % where we assume that a "character" looks like one thing.
@@ -270,6 +271,10 @@
 % The renderer will see that certain graphemes are next to each other and select the correct
 % glyph from the font specification.
 %
+% If your font doesn't support some character or some cluster, you'll see whatever fallback
+% symbol the renderer uses (usually a box) or the graphemes in the cluster displayed
+% separately.
+%
 % However, fonts are way out of scope for this talk, so that's all we'll say about that.
 \end{frame}
 
@@ -303,6 +308,12 @@
 % When it's time to display this string and the renderer sees the codepoints 0065 and 0301
 % next to each other, it will recognize that this cluster corresponds to the accented e
 % and will display the correct glyph.
+%
+% From here on out, I'm still going to refer to the units in the character set, the
+% graphemes, as characters.
+% Just remember the difference between the Unicode definition of character and what we
+% perceive as characters, which could be the same as the Unicode definition or a grapheme
+% cluster, or something else.
   \begin{table}
     \footnotesize
     \begin{tabular}{|l||c|c|c|c|c|c|c|} \hline
@@ -315,13 +326,18 @@
   \end{table}
 \end{frame}
 
+
+% -----------------------------------------------
+\section{UTF-8}
+% Now that we've covered the most relevant parts of the Universal Character Set, let's
+% talk about encoding.
+%
+% Remember, the UCS assigns each character (each grapheme) to a codepoint.
+% It doesn't define a single way you're required to store these codepoint values.
+
 % ---------------------------
 \renewcommand{\currenttitle}{Unicode encodings}
 \begin{frame}{\currenttitle}
-% Remember that Unicode defines the coded character set by assigning each character
-% a codepoint.
-% It doesn't specify which encoding you have to use to store these characters.
-%
 % The standard defines a few encodings, the most common of which are UTF-8 and UTF-16.
 %
 % The majority of websites are now encoded in UTF-8, and if you use a Unix-based system
@@ -350,29 +366,64 @@
 \end{frame}
 
 % ---------------------------
+\renewcommand{\currenttitle}{How much space?}
+\begin{frame}{\currenttitle}
+% Before we consider any specific encodings, however, we need to figure out how much space
+% it would take to store every codepoint in the UCS.
+%
+% There are 1,112,064 possible codepoints.
+% In 2003, Unicode restricted the size of codepoints to 21-bit values.
+% 2^20 is 1,048,576: not enough bits to store all codepoints.
+% 2^21 is 2,097,152: enough.
+% So, theoretically, we could use 3 bytes or 24 bits, to store every single codepoint.
+%
+% However, memory is generally considered in powers of 2, so most of the relevant Unicode
+% encodings will work with 4 bytes.
+\end{frame}
+
+% ---------------------------
 \renewcommand{\currenttitle}{Examining UTF-8 encoding}
 \begin{frame}{\currenttitle}
-% Let's examine how characters are encoded and decoded to and from UTF-8.
+% Let's examine UTF-8 in detail.
+% We first need to consider several design considerations.
+% It's these considerations that have propelled UTF-8 to be the dominant encoding.
 %
-% UTF-8 is a variable-width encoding, meaning each codepoint can take up a variable number
+% The first consideration is backwards compatbility.
+% At the time of Unicode's development, ASCII and its derivatives were the dominant encodings.
+% To enable the use of data that was already encoded in ASCII, UTF-8 was designed to be
+% 100% backwards compatible with ASCII.
+%
+% The second consideration is space efficiency.
+%
+% Remember back to the Unicode planes we discussed earlier.
+% The first plane was the Basic Multilingual Plane, which contains most characters for almost
+% all modern scripts.
+% These are the characters that are going to be used most often.
+% It would be a complete waste of space to store a small codepoint value in 4 bytes when it
+% only required 1 or 2.
+%
+% This consideration is also related to the first.
+% In ASCII, all the 128 characters were stored in 1 byte.
+% If UTF-8 is to be backwards comptabile with ASCII, those codepoints can't be stored in 4
+% bytes.
+\end{frame}
+
+% ---------------------------
+\begin{frame}{\currenttitle}
+% Solution: a variable-width encoding, meaning each codepoint can take up a variable number
 % of bytes.
-%
-% Characters are assigned codepoint values via the Universial Character Set, and we convert
-% these values into binary to store in memory.
 %
 % In the case of UTF-8, each codepoint is stored as in 1, 2, 3, or 4 bytes.
 % For example, the dollar sign, with a codepoint value of 36 (in decimal), takes up 1 byte.
 % The Euro symbol, with a codepoint value of 8364 (in decimal), takes up 3 bytes.
-% 4 bytes is enough to store every single character in the Universal Character Set.
 %
 % Unfortunately, as we'll see, we can't simply map the binary value directly to bits in
 % memory like we did with ASCII.
-% That's because this is a variable-width encoding.
-% If we have a codepoint that takes up 2 bytes, followed by a codepoint that takes up 4 bytes,
-% then 1 byte, we need to somehow know where each codepoint starts and ends.
+% If we have a codepoint that takes up 2 bytes, followed by a codepoint that takes up 4
+% bytes, then 1 byte, we need to somehow know where each codepoint starts and ends.
 %
 % Thus, we put certain patterns of bits at the start of each byte to indicate how many
-% bytes that codepoint takes up.
+% bytes codepoint takes up.
   UTF-8 is a \textbf{variable-width} encoding \\
   \vspace*{1em}
   Each codepoint is stored in \textbf{1 \textendash{} 4 bytes}
@@ -889,6 +940,65 @@
   The result:
 
   \input{\subdir/32-utf8.Rnw_tex}
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{What are the caveats?}
+\begin{frame}[fragile]{\currenttitle}
+% A variable-width encoding does not come without caveats.
+%
+% Limitation: we cannot index strings to get characters.
+% If you're used to accessing a string like an array by getting some character at some index,
+% you're going to run into problems.
+%
+% Suppose we have the following string.
+% In UTF-8, we have these bytes.
+%
+% Notice that the CJK character takes up 3 bytes and the 'w' takes up 1 byte.
+% If we were to index this string, what would we get?
+%
+% Do we get the byte at position 1 (the second byte)?
+% That byte is 172 in decimal, but 172 does not make sense on its own.
+%
+% If we want the character at position 1 (the second character), we would need to find where
+% that character starts and ends.
+% This requires iterating through the string.
+% Indexing is supposed to be an O(n) operation, so indexing is impossible.
+%
+% This is further complicated by diacritics and composed character clusters.
+% If we have some base character and a diacritic mark, do we index the base or the mark, or
+% the entire cluster together?
+% These are all non-trivial questions and operations.
+  \textbf{Limitation}: We cannot index strings \\[1.5em]
+
+  \begin{figure}
+    \begin{bytefield}{48}
+      \bitheader{0,7,8,15,16,23,24,31,32,39,40,47} \\
+      \bitbox{24}{笑 (U+7B11)} & \bitbox{8}{w (U+0077)} & \bitbox{16}{¢ (U+00A2)} \\
+      \bitboxes{1}{11100111 10101100 10010001 01110111 11000010 10100010}
+    \end{bytefield}
+    \caption{UTF-8 for ``笑w''}
+  \end{figure}
+
+  What would we get if we tried to index the string?
+  \begin{lstlisting}[language=Rust]
+      let s = "笑w";
+      s[1]
+  \end{lstlisting}
+\end{frame}
+
+% ---------------------------
+\begin{frame}{\currenttitle}
+% This also indicates that we cannot slice a string in O(n) time.
+% For the same reason as why indexing does not work, we cannot get the start and end characters
+% of the slice in constant time.
+% We can still get a slice of the bytes, but slicing to get whole characters or grapheme clusters
+% is more difficult.
+%
+% Though these could be considered a limitations, it could also be considered a benefit.
+% Text is inherently complicated, and forcing programmers to recognize that complexity forces
+% us to be more thoughtful about how we handle such data.
+  \textbf{Limitation}: We cannot slice strings \\[1.5em]
 \end{frame}
 
 % ---------------------------
