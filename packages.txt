@@ -1,8 +1,8 @@
-babel-english
 beamer
 beamertheme-metropolis
 bytefield
 csquotes
+dad
 enumitem
 fira
 forloop
@@ -11,7 +11,9 @@ haranoaji
 import
 listings
 luacode
+luatex85
 luatexbase
 luatexja
 pgfopts
+polyglossia
 subfiles

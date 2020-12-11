@@ -64,7 +64,10 @@
 % forms, and other relevant changes.
 % As of 2020, the latest major version of Unicode is version 13.
 % Version 14.0 is planned to release in March 2021.
-  \textbf{Unicode} \textendash{} standard for consistent digital text handling across the world
+  \textbf{Unicode} \textendash{} 
+      standard for consistent digital text handling across the world \\[1em]
+  \textbf{Unicode Consortium} \textendash{} 
+      non-profit organization designated to maintain and publish the Unicode standard
 \end{frame}
 
 % ---------------------------
@@ -73,29 +76,44 @@
 % I mentioned that Unicode has been designed to work with just about every language used in
 % modern times and avoids the caveats of ASCII and similar encodings to do that, but how is
 % that accomplished?
+%
+% Let's see how it addresses our first problem with ASCII: the lack of character coverage.
   Problem: character coverage
 \end{frame}
 
 % ---------------------------
 \renewcommand{\currenttitle}{The Universal Character Set}
 \begin{frame}{\currenttitle}
-% The Unicode standard defines the Universal Coded Character Set (UCS), a superset of the ISO
-% 8859-1 character set, that contains most of the characters in most modern scripts.
+% The Unicode standard defines the Universal Character Set (UCS), which contains most of the
+% characters in most modern scripts.
 % Every year, new characters are added to the set to increase coverage.
 %
 % Like with ASCII and other standards, each character is assigned a numerical value, a
 % codepoint.
 %
-% For the Universal Coded Character Set, the allowed codepoint values range from 0 to 10FFFF
+% For the Universal Character Set, the allowed codepoint values range from 0 to 10FFFF
 % in hex.
 % A portion of these codepoints are called surrogate codepoints (which we won't really talk
 % about) so there are 1,112,064 possible codepoints.
 % Many of the values are also unassigned to help make Unicode more future-proof and reduce
 % conflicts with other encoding standards.
 %
+% The UCS is also a superset of the ISO 8859-1 character set, which, if you remember, is the
+% extended ASCII with the Latin-1 supplemental characters.
+% That means we're using the same codepoints for the same characters as in ISO 8859-1.
+%
 % Each character is also assigned a General Category that indicates that characteristics of
 % that character.
 % Some of the major categories include Letter, Number, Puntuation, Separator, etc.
+% However, we won't be getting into this.
+  \textbf{Universal Character Set} \textendash{} 
+      character set that maps characters for almost all modern natural scripts, 
+      mathematics, music, etc. \\
+
+  \begin{itemize}
+    \item[--] 1,112,064 possible codepoints
+    \item[--] Superset of ISO 8859-1 (extended ASCII with Latin-1 supplement)
+  \end{itemize}
 \end{frame}
 
 % ---------------------------
@@ -133,6 +151,14 @@
 % and cuneiform.
 % This plane also includes musical and mathematical symbols, Emoji, and other pictographic
 % sets.
+%
+% These two planes are the most immediately relevant, and the coverage they afford basically
+% solves the first two bullets.
+%
+% The UCS covers most characters in most scripts used today, and this coverage means that
+% everyone across the world can use Unicode instead of regional standards.
+%
+% That leaves the third bullet.
   \vspace*{1em}
   \begin{figure}
     \centering
@@ -143,12 +169,6 @@
 
 % ---------------------------
 \begin{frame}[standout]
-% So, we've basically solved our first two bullet points.
-% The UCS covers most characters in most scripts used today, and this coverage means that
-% everyone across the world can use Unicode instead of regional standards.
-%
-% That leaves the third bullet.
-%
 % We're still mapping characters, and so far, everything is pretty similar to ASCII.
 % But here's where we need to stop and consider the following:
 %
@@ -180,6 +200,28 @@
 % It would be wildly inefficient and unwieldy to have a different codepoint for each visual
 % form of each letter and have to replace codepoints with totally different ones when a
 % single letter is deleted.
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      If we continuously hit \\
+      \framebox{\texttt{backspace}\footnotemark{}}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{flushright}
+        \Large
+        \arab{
+          الأبجدية العربية \\
+          الأبجدية العربي \\
+          الأبجدية العرب \\
+          الأبجدية العر \\
+          الأبجدية الع \\
+          الأبجدية ال \\
+          الأبجدية ا \\
+          الأبجدية  \\
+        }
+      \end{flushright}
+    \end{column}
+  \end{columns}
+  \footnotetext{Arabic is written right-to-left (deletion begins from the left)}
 \end{frame}
 % ---------------------------
 \renewcommand{\currenttitle}{Graphemes, not glyphs}
@@ -204,11 +246,12 @@
   Unicode maps codepoints to \textbf{graphemes} instead of \textbf{glyphs} \\[1.5em]
   \begin{columns}[t]
     \column{0.45\textwidth}
-    \textbf{Grapheme} \textendash{} smallest functional unit of writing, represents an
-      abstract concept (data)
+    \textbf{Grapheme} \textendash{} 
+        smallest functional unit of writing, represents an abstract concept (data)
 
     \column{0.45\textwidth}
-    \textbf{Glyph} \textendash{} visual representation of a readable symbol (display) \\[1em]
+    \textbf{Glyph} \textendash{}
+        visual representation of a readable symbol (display) \\[2em]
     \begin{figure}
       \centering
       \includegraphics[width=0.6\columnwidth]{\subdir/31-glyph.png}

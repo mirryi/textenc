@@ -1,26 +1,45 @@
-\usepackage{graphicx}
-\PassOptionsToPackage{dvipsnames}{xcolor}
-
-\usepackage[utf8]{inputenc}
-\usepackage[english]{babel}
+% ---------------------------
+% Inline/display quotation rendering 
 \usepackage{csquotes}
 
+% Font rendering
 \usepackage{fontspec}
+\usepackage{polyglossia}
+\setdefaultlanguage{english}
+% Japanese input support
 \usepackage[haranoaji,nfssonly]{luatexja-preset}
+% Arabic input support
+\usepackage{dad}
+
+% ---------------------------
+% For loop utility
+\usepackage{forloop}
+
+% Inline lua support
+\usepackage{luacode}
+
+% ---------------------------
+% Graphics, diagrams
+\usepackage{graphicx}
+\PassOptionsToPackage{dvipsnames}{xcolor}
 
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,matrix}
 
-\usepackage{listings}
-\usepackage{listings-rust}
-
-\usepackage{enumitem}
 \usepackage{bytefield}
 \usepackage{rotating}
 
+% ---------------------------
+% Code listings
+\usepackage{listings}
+\usepackage{listings-rust}
+
+% More control over lists/enumerations
+\usepackage{enumitem}
+
+% Math support
 \usepackage{amsmath}
-\usepackage{forloop}
 
+% ---------------------------
+% Sub-documents
 \usepackage{subfiles}
-
-\setmonofont{Fira Code}[Contextuals=Alternate]
