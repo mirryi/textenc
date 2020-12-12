@@ -1118,18 +1118,60 @@
   \end{lstlisting}
 \end{frame}
 
+% -----------------------------------------------
+\renewcommand{\sectiontitle}{How to be Unicode-aware?}
+\section{\sectiontitle}
+% Now that we have a little better of an idea of how modern computers handle text, how can
+% we make sure the programs we write are conscious of these complexities?
+
 % ---------------------------
-\renewcommand{\currenttitle}{Unicode's shortcomings}
+\renewcommand{\currenttitle}{Understand your language}
+\begin{frame}{\currenttitle}
+% The first step is to understand how the language you're using handles text.
+%
+% Hopefully, after everything we've discussed, you noticed that there are a lot of
+% considerations to be had.
+% We talked more extensively about UTF-8, but that doesn't mean everything is necessarily
+% UTF-8.
+% That's why it's important to understand how text data is stored.
+%
+% What is the size of the character data type?
+% Do their values match Unicode's codepoints?
+% Are they stored internally as UTF-8 or some other encoding?
+% Are strings handled as bytes?
+  Consider:
+
+  \begin{itemize}
+    \item[--] What is the size of the character data type?
+    \item[--] Do their values match Unicode's codepoints?
+    \item[--] Are they stored internally as UTF-8 or some other encoding?
+    \item[--] How are strings stored?
+  \end{itemize}
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{Use a standard library}
+\begin{frame}{\currenttitle}
+% As you explore different languages, you'll find that some handle strings natively as UTF-8,
+% while some have no built-in Unicode support.
+% For the latter, it may be wise to use an external library that handles encoding, decoding,
+% and more advanced operations for you.
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{Let's talk Java}
+\begin{frame}{\currenttitle}
+% Let's talk about Java.
+  Java \texttt{String}'s are stored internally using UTF-16BE.
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{What about Python?}
 \begin{frame}{\currenttitle}
 \end{frame}
 
 % ---------------------------
-\renewcommand{\currenttitle}{How to be Unicode-aware?}
-\begin{frame}{\currenttitle}
-\end{frame}
-
-% ---------------------------
-\renewcommand{\currenttitle}{Unicode in language X?}
+\renewcommand{\currenttitle}{C and C++}
 \begin{frame}{\currenttitle}
 \end{frame}
 
