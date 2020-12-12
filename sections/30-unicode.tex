@@ -260,6 +260,13 @@
 \end{frame}
 
 % ---------------------------
+\newcommand{\card}[2]{%
+  \fbox{\begin{minipage}[t][0.6\textheight]{0.45\textwidth}
+    #1
+    \par\noindent\rule{\columnwidth}{0.4pt} \\
+    #2
+  \end{minipage}}%
+}
 \begin{frame}{\currenttitle}
 % Another example to help distinguish between glyphs and graphemes.
 %
@@ -276,10 +283,25 @@
 % For example, think of how the number 2 looks different in a serif font like Times New Roman
 % vs. a sans-serif font like Liberation Sans.
 % We have the same grapheme, the number 2, but different glyphs.
-  \begin{columns}[t]
-    \column{0.45\textwidth}
-    \textbf{}
-  \end{columns}
+  \begin{center}
+    \card{\textbf{μ} (U+03BC)}
+    {
+      Greek Small Letter Mu \\
+      \textbf{Block}: Greek and Coptic \\
+      \begin{center}
+        {\HUGE μ}
+      \end{center}
+    }%
+    \hspace{0.5cm}%
+    \card{\textbf{μ} (U+00B5)}
+    {
+      Micro Sign \\
+      \textbf{Block}: Latin-1 Supplement \\
+      \begin{center}
+        {\HUGE µ}
+      \end{center}
+    }
+  \end{center}
 \end{frame}
 
 % ---------------------------
