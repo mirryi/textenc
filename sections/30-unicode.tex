@@ -459,7 +459,7 @@
 % The Web Hypertext Application Technology Working Group considers UTF-8 to be
 % best practice and states that any browser application should not use UTF-16.
 %
-% So, we're going to focus primarily on UTF-8 and discuss UTF-16 briefly at the end.
+% We're going to focus primarily on UTF-8.
   The Unicode standard defines a number of encoding formats:
 
   \begin{itemize}
@@ -483,8 +483,15 @@
 % 2^21 is 2,097,152: enough.
 % So, theoretically, we could use 3 bytes or 24 bits, to store every single codepoint.
 %
-% However, memory is generally considered in powers of 2, so most of the relevant Unicode
-% encodings will work with 4 bytes.
+% UTF-8 uses 4 bytes instead of 3---we'll see why.
+  21 bits is enough for 2097152 possible codepoints:
+  \[
+    2^{20} = 1048576 < \boldsymbol{1112064} \text{ \textbf{codepoints}} < 2097152 = 2^{21}
+  \]
+
+  Thus, 3 bytes (24 bits) minimum. \\[1em]
+
+  UTF-8 uses \textbf{4 bytes}.
 \end{frame}
 
 % ---------------------------
@@ -512,6 +519,12 @@
 % In ASCII, all the 128 characters were stored in 1 byte.
 % If UTF-8 is to be backwards comptabile with ASCII, those codepoints can't be stored in 4
 % bytes.
+  Considerations:
+
+  \begin{itemize}
+    \item[--] ASCII compatibility
+    \item[--] Space efficiency (only use the number of bytes a coodepoint really needs)
+  \end{itemize}
 \end{frame}
 
 % ---------------------------
@@ -1075,26 +1088,7 @@
 % If we have some base character and a diacritic mark, do we index the base or the mark, or
 % the entire cluster together?
 % These are all non-trivial questions and operations.
-  \textbf{Limitation}: We cannot index strings \\[1.5em]
-
-  \begin{figure}
-    \begin{bytefield}{48}
-      \bitheader{0,7,8,15,16,23,24,31,32,39,40,47} \\
-      \bitbox{24}{笑 (U+7B11)} & \bitbox{8}{w (U+0077)} & \bitbox{16}{¢ (U+00A2)} \\
-      \bitboxes{1}{11100111 10101100 10010001 01110111 11000010 10100010}
-    \end{bytefield}
-    \caption{UTF-8 for ``笑w''}
-  \end{figure}
-
-  What would we get if we tried to index the string?
-  \begin{lstlisting}[language=Rust]
-      let s = "笑w";
-      s[1]
-  \end{lstlisting}
-\end{frame}
-
-% ---------------------------
-\begin{frame}{\currenttitle}
+%
 % This also indicates that we cannot slice a string in O(n) time.
 % For the same reason as why indexing does not work, we cannot get the start and end characters
 % of the slice in constant time.
@@ -1104,12 +1098,24 @@
 % Though these could be considered a limitations, it could also be considered a benefit.
 % Text is inherently complicated, and forcing programmers to recognize that complexity forces
 % us to be more thoughtful about how we handle such data.
-  \textbf{Limitation}: We cannot slice strings \\[1.5em]
-\end{frame}
+  \textbf{Limitation}: We cannot index or slice strings \\[1.5em]
 
-% ---------------------------
-\renewcommand{\currenttitle}{UTF-16}
-\begin{frame}{\currenttitle}
+  \begin{figure}
+    \footnotesize
+    \begin{bytefield}[bitwidth=0.0208333333\textwidth]{48}
+      \bitheader{0,8,16,24,32,40} \\
+      \bitbox{24}{笑 (U+7B11)} & \bitbox{8}{w (U+0077)} & \bitbox{16}{¢ (U+00A2)} \\
+      \bitboxes{8}{{E7} {AC} {91} {77} {C2} {A2}}
+    \end{bytefield}
+    \caption{UTF-8 for ``笑w¢''}
+  \end{figure}
+
+  What would we get if we tried to index the string?
+  \begin{lstlisting}[language=Rust]
+      let s = "笑w¢";
+      s[1]
+      s[1:2]
+  \end{lstlisting}
 \end{frame}
 
 % ---------------------------
