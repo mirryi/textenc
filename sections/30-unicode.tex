@@ -178,6 +178,30 @@
 \end{frame}
 
 % ---------------------------
+\newcommand{\arabicexample}{%
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      If we continuously hit \\
+      \framebox{\texttt{backspace}\footnotemark{}}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{flushright}
+        \Large
+        \arab{
+          الأبجدية العربية \\
+          الأبجدية العربي \\
+          الأبجدية العرب \\
+          الأبجدية العر \\
+          الأبجدية الع \\
+          الأبجدية ال \\
+          الأبجدية ا \\
+          الأبجدية  \\
+        }
+      \end{flushright}
+    \end{column}
+  \end{columns}
+  \footnotetext{Arabic is written right-to-left (deletion begins from the left)}%
+}
 \renewcommand{\currenttitle}{Characters: not so simple}
 \begin{frame}{\currenttitle}
 % An oft-cited example is Arabic.
@@ -200,28 +224,7 @@
 % It would be wildly inefficient and unwieldy to have a different codepoint for each visual
 % form of each letter and have to replace codepoints with totally different ones when a
 % single letter is deleted.
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-      If we continuously hit \\
-      \framebox{\texttt{backspace}\footnotemark{}}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \begin{flushright}
-        \Large
-        \arab{
-          الأبجدية العربية \\
-          الأبجدية العربي \\
-          الأبجدية العرب \\
-          الأبجدية العر \\
-          الأبجدية الع \\
-          الأبجدية ال \\
-          الأبجدية ا \\
-          الأبجدية  \\
-        }
-      \end{flushright}
-    \end{column}
-  \end{columns}
-  \footnotetext{Arabic is written right-to-left (deletion begins from the left)}
+  \arabicexample{}
 \end{frame}
 % ---------------------------
 \renewcommand{\currenttitle}{Graphemes, not glyphs}
@@ -270,8 +273,8 @@
 \begin{frame}{\currenttitle}
 % Another example to help distinguish between glyphs and graphemes.
 %
-% The UCS includes the 'micro sign' and the Greek small letter 'mu', and both
-% look like this u with a tail.
+% The UCS includes the 'micro sign' and the Greek small letter 'mu', and both look like this
+% u with a tail.
 % I'm sure you've used it in your math and physics classes.
 %
 % Visually, they look similar or the same, but they are functionally different.
@@ -316,10 +319,24 @@
 % the glyphs changed.
 % But the underlying graphemes are still the same graphemes.
 %
+% As shown in the table, the graphemes are in the left-most column, and their contextual
+% forms---what they're supposed to look like given their position---are in the other
+% columns.
+%
 % In many writing systems like Arabic, there is no easy way to say what is a character
 % based on the visual representation.
-% We need to look at them at a deeper level, and that is the semantic level, which gives
-% us graphemes.
+% We need to look at them at a deeper level, which gives us graphemes.
+  \arabicexample{}
+
+  % \begin{table}
+    % \begin{tabular}{|c||c|c|c|c|} \hline
+      % \multirow{2}{*}{General Unicode}  & \multicolumn{4}{c|}{Contextual Forms}               \\
+                                          % \cline{2-5}
+                      % & Isolated        & End             & Middle          & Beginning       \\
+      % \hline
+      % \arab{ب} (0628) & \arab{ﺏ} (FE8F) & \arab{ﺐ} (FE90) & \arab{ﺒ} (FE92) & \arab{ﺑ} (FE91) \\
+    % \end{tabular}
+  % \end{table}
 \end{frame}
 
 % ---------------------------
@@ -336,11 +353,28 @@
 % The renderer will see that certain graphemes are next to each other and select the correct
 % glyph from the font specification.
 %
+% For Arabic, the display system may convert the general grapheme forms into special codes
+% for the contextual forms, which then may match to font glyphs.
+%
 % If your font doesn't support some character or some cluster, you'll see whatever fallback
 % symbol the renderer uses (usually a box) or the graphemes in the cluster displayed
 % separately.
 %
-% However, fonts are way out of scope for this talk, so that's all we'll say about that.
+% If you remember back to the Micro Sign and Greek Small Letter Mu slide, they looked similar
+% but different.
+% The main font I'm using to render these slides covers the Latin-1 supplement characters,
+% but not the Greek letters.
+% Thus, it falls back to some other font to render the Greek mu.
+%
+% However, font rendering is way out of scope for this talk, so that's all we'll say about
+% that.
+  \textbf{Fonts} define how to render the characters \\[1em]
+
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{\subdir/31-font-comparison.png}
+    \caption{Japanese font comparison}
+  \end{figure}
 \end{frame}
 
 % ---------------------------
@@ -373,12 +407,9 @@
 % When it's time to display this string and the renderer sees the codepoints 0065 and 0301
 % next to each other, it will recognize that this cluster corresponds to the accented e
 % and will display the correct glyph.
-%
-% From here on out, I'm still going to refer to the units in the character set, the
-% graphemes, as characters.
-% Just remember the difference between the Unicode definition of character and what we
-% perceive as characters, which could be the same as the Unicode definition or a grapheme
-% cluster, or something else.
+  \textbf{Grapheme cluster} \textendash{} a sequence of multiple codepoints that together may
+    represent a user-perceived character
+
   \begin{table}
     \footnotesize
     \begin{tabular}{|l||c|c|c|c|c|c|c|} \hline
@@ -391,9 +422,19 @@
   \end{table}
 \end{frame}
 
+% ---------------------------
+\begin{frame}[standout]
+% From here on out, I'm still going to refer to the units in the character set, the
+% graphemes, as characters.
+% Just remember the difference between the Unicode definition of character and what we
+% perceive as characters, which could be the same as the Unicode definition or a grapheme
+% cluster, or something else.
+  characters \texttt{==} graphemes
+\end{frame}
 
 % -----------------------------------------------
-\section{UTF-8}
+\renewcommand{\sectiontitle}{UTF-8}
+\section{\sectiontitle}
 % Now that we've covered the most relevant parts of the Universal Character Set, let's
 % talk about encoding.
 %
