@@ -3,7 +3,7 @@
 // representation.
 use table::from_codepoint;
 
-fn decode_ascii(memory: &Vec<u8>) -> String {
+fn decode_ascii(memory: &[u8]) -> String {
     // Convert each codepoint to its corresponding ASCII
     // character.
     let codepoints = memory.iter().map(|n| from_codepoint(*n));

@@ -182,7 +182,9 @@
   \begin{columns}
     \begin{column}{0.5\textwidth}
       If we continuously hit \\
-      \framebox{\texttt{backspace}\footnotemark{}}
+      \framebox{\texttt{backspace}\footnotemark{}} \\[3em]
+
+      ... the shape of letters change.
     \end{column}
     \begin{column}{0.5\textwidth}
       \begin{flushright}
@@ -543,7 +545,7 @@
 %
 % Thus, we put certain patterns of bits at the start of each byte to indicate how many
 % bytes codepoint takes up.
-  UTF-8 is a \textbf{variable-width} encoding \\
+  UTF-8 is a \textbf{fixed-order} \textbf{variable-width} encoding \\
   \vspace*{1em}
   Each codepoint is stored in \textbf{1 \textendash{} 4 bytes}
 
@@ -742,15 +744,19 @@
 % Note that we won't be preforming any validation, so this is far from production-ready.
 % We're simply assuming that the bytes are proper UTF-8.
 %
-% Here's part of our header file, where we'll define the function signatures and some constants.
+% Here's part of our header file, where we'll define the function signatures and some
+% constants.
 %
-% This is probably not a good practice, but we're going to alias unsigned char to a type called
+% This is probably not a good practice, but we're going to alias unsigned char to a type
+% called
 % byte, and unsigned int to a type called codepoint.
 % In C and C++, chars are 8-bit integers, and unsigned indicates that these values will always
 % be positive.
-% Thus, a byte, which we've defined as unsigned char, will simply be an 8-bit integer, representing
-% an actual byte.
+% Thus, a byte, which we've defined as unsigned char, will simply be an 8-bit integer,
+% representing an actual byte.
 % Ints are 32-bit integers, so unsigned int denotes a positive 32-bit integer.
+% Remember that a codepoint can fit in 21 bits, so a 32-bit integer will be large enough to
+% represent every possible codepoint.
 %
 % We've given these names to make it clear that we're converting from a vectory of bytes to a
 % vector of codepoints.
@@ -1062,11 +1068,89 @@
 \end{frame}
 
 % ---------------------------
-\renewcommand{\currenttitle}{What are the caveats?}
+\renewcommand{\currenttitle}{Try yourself: UTF-8 encoder}
 \begin{frame}[fragile]{\currenttitle}
-% A variable-width encoding does not come without caveats.
+% So that's our UTF-8 decoder.
+% I encourage you, this week, to try writing the reverse: a UTF-8 encoder.
 %
-% Limitation: we cannot index strings to get characters.
+% That is, write a function that takes in a list of Unicode codepoints and returns a list of
+% UTF-8-encoded byte values.
+% We'll have a form you can submit your solution to if you'd like.
+  \vspace*{1em}
+
+  Implement a function \texttt{encode} that converts Unicode codepoints into UTF-8-encoded
+  bytes: \\[1em]
+
+  \begin{lstlisting}[language=Java]
+// Java
+int[] encode(int[] codepoints) {
+  ...
+}
+  \end{lstlisting}
+
+  \begin{lstlisting}[language=Python]
+# Python
+def encode(codepoints: list[int]) -> list[int]:
+  ...
+  \end{lstlisting}
+
+  \begin{lstlisting}[language=C++]
+// C++
+std::vector<unsigned char>
+encode(const std::vector<unsigned int> &codepoints) {
+  ...
+}
+  \end{lstlisting}
+\end{frame}
+
+% -----------------------------------------------
+\renewcommand{\sectiontitle}{How to be Unicode-aware?}
+\section{\sectiontitle}
+% Now that we have a little better of an idea of how modern computers handle text, how can
+% we make sure the programs we write are conscious of these complexities?
+
+% ---------------------------
+\renewcommand{\currenttitle}{Understand your language}
+\begin{frame}{\currenttitle}
+% The first step is to understand how the language you're using handles text.
+%
+% Hopefully, after everything we've discussed, you noticed that there are a lot of
+% considerations to be had.
+% We talked more extensively about UTF-8, but that doesn't mean everything is necessarily
+% UTF-8.
+% That's why it's important to understand how text data is stored.
+%
+% What is the size of the character data type?
+% Do their values match Unicode's codepoints?
+% Are they stored internally as UTF-8 or some other encoding?
+% Are strings handled as bytes?
+%
+% As you explore different languages, you'll find that some handle strings natively as UTF-8,
+% while some have no built-in Unicode support.
+% For the latter, it may be wise to use an external library that handles encoding, decoding,
+% and more advanced operations for you.
+%
+% In most cases, languages will have sufficient functionality for most basic operations.
+% However, once you start doing comparisons, regular expressions and more advanced operations
+% that require awareness of character categories and things like that, you may need an
+% external library that is Unicode-aware.
+%
+% Let's take a look at some of these complications.
+  Consider:
+
+  \begin{itemize}
+    \item[--] What is the size of the character data type?
+    \item[--] Do their values match Unicode's codepoints?
+    \item[--] Are they stored internally as UTF-8 or some other encoding?
+    \item[--] How are strings stored?
+    \item[--] Do I need an external library?
+  \end{itemize}
+\end{frame}
+
+% ---------------------------
+\renewcommand{\currenttitle}{Indexing / slicing strings}
+\begin{frame}[fragile]{\currenttitle}
+% We cannot index strings to get characters.
 % If you're used to accessing a string like an array by getting some character at some index,
 % you're going to run into problems.
 %
@@ -1094,10 +1178,6 @@
 % of the slice in constant time.
 % We can still get a slice of the bytes, but slicing to get whole characters or grapheme clusters
 % is more difficult.
-%
-% Though these could be considered a limitations, it could also be considered a benefit.
-% Text is inherently complicated, and forcing programmers to recognize that complexity forces
-% us to be more thoughtful about how we handle such data.
   \textbf{Limitation}: We cannot index or slice strings \\[1.5em]
 
   \begin{figure}
@@ -1112,67 +1192,140 @@
 
   What would we get if we tried to index the string?
   \begin{lstlisting}[language=Rust]
-      let s = "笑w¢";
-      s[1]
-      s[1:2]
+    let s = "笑w¢";
+    s[1]
+    s[1:2]
   \end{lstlisting}
 \end{frame}
 
-% -----------------------------------------------
-\renewcommand{\sectiontitle}{How to be Unicode-aware?}
-\section{\sectiontitle}
-% Now that we have a little better of an idea of how modern computers handle text, how can
-% we make sure the programs we write are conscious of these complexities?
-
 % ---------------------------
-\renewcommand{\currenttitle}{Understand your language}
-\begin{frame}{\currenttitle}
-% The first step is to understand how the language you're using handles text.
+\renewcommand{\currenttitle}{Iterating through strings}
+\begin{frame}[fragile]{\currenttitle}
+% For similar reasons, we need to conscious of what's going on when we iterate through strings.
 %
-% Hopefully, after everything we've discussed, you noticed that there are a lot of
-% considerations to be had.
-% We talked more extensively about UTF-8, but that doesn't mean everything is necessarily
-% UTF-8.
-% That's why it's important to understand how text data is stored.
+% Let's say we have this kind of psuedo-code: a loop through some UTF-8-encoded string and we
+% print each element.
+% The question is: what's being printed?
 %
-% What is the size of the character data type?
-% Do their values match Unicode's codepoints?
-% Are they stored internally as UTF-8 or some other encoding?
-% Are strings handled as bytes?
-  Consider:
+% Are we printing each byte? Each codepoint? Each grapheme cluster?
+% Of course, this is typically dependent on how the specific programming language handles text,
+% which brings us back to the first point: know your language.
+%
+% If the string is encoded in UTF-8 and we want to print out each codepoint, we would need to
+% do a similar process as with the UTF-8 decode we implemented earlier.
+%
+% If we want to print out grapheme clusters, which is what users typically perceive as
+% characters in many languages, the code must be aware of which codepoints for clusters.
+% This is all non-trivial and it would be best to rely on a Unicode-aware library.
+  Iterating through strings is non-trivial. \\[2em]
 
-  \begin{itemize}
-    \item[--] What is the size of the character data type?
-    \item[--] Do their values match Unicode's codepoints?
-    \item[--] Are they stored internally as UTF-8 or some other encoding?
-    \item[--] How are strings stored?
-  \end{itemize}
+  \begin{columns}
+    \begin{column}[t]{0.45\textwidth}
+      What's being printed? \\[1em]
+
+      \begin{lstlisting}[language=Python]
+  for ch in "笑w¢" {
+    print(ch + "\n");
+  }
+      \end{lstlisting}
+    \end{column}
+
+    \begin{column}[t]{0.45\textwidth}
+      Byte values? \\
+      Codepoint values? \\
+      Graphemes? \\
+      Grapheme clusters? \\
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % ---------------------------
-\renewcommand{\currenttitle}{Use a standard library}
-\begin{frame}{\currenttitle}
-% As you explore different languages, you'll find that some handle strings natively as UTF-8,
-% while some have no built-in Unicode support.
-% For the latter, it may be wise to use an external library that handles encoding, decoding,
-% and more advanced operations for you.
+\renewcommand{\currenttitle}{Category / property awareness}
+\begin{frame}[fragile]{\currenttitle}
+% Similarly to iterating grapheme clusters, many other operations require Unicode awareness.
+%
+% Let's look at a search and replace example.
+% Suppose, that for any arbitrary string, we want to remove the numbers.
+%
+% Any particular writing script may have it's own number characters.
+% We can't simply pass in the number characters we're all familiar with to match every
+% number.
+% Thus, this operation is non-trivial and requires a library aware of Unicode properties.
+% This is why writing a Unicode-compliant regular expression library is a non-trivial task.
+%
+% Here's how we would do such an operation in standards-compliant modern JavaScript.
+% This is a pretty mundane example since I was lazy.
+% The 2 after the and is known as the Fullwidth Digit Two, which according to the Unicode
+% standard is a decimal number, but not the same as the ASCII-compatible 2 we're use
+% regularly.
+  Many operations may require \textbf{awareness of Unicode character categories or
+  properties}. \\[2em]
+
+  Unicode regular expression search and replace in ES6 JavaScript:  \\[1em]
+
+  \begin{lstlisting}[language=ES6]
+// Use the `u` flag to support Unicode in regular expression.
+const regexp = /\p{Nd}/gu;
+
+// "２" is the "Fullwidth Digit Two (U+FF12)".
+const str = "Hello 07 and ２d." 
+
+str.replace(regexp, "");          
+// "Hello  and d."
+  \end{lstlisting}
 \end{frame}
 
 % ---------------------------
-\renewcommand{\currenttitle}{Let's talk Java}
-\begin{frame}{\currenttitle}
-% Let's talk about Java.
-  Java \texttt{String}'s are stored internally using UTF-16BE.
+\renewcommand{\currenttitle}{Canonical equivalence}
+\begin{frame}[fragile]{\currenttitle}
+% As we mentioned before with the Amélie example, Unicode allows many equivalent
+% representations of the same strings.
+%
+% This can pose complications when doing things like comparisons.
+% Two strings may have different byte representations, but are considered canonically
+% equivalent.
+% If your comparison wants to reflect this (which in many cases it would make sense to)
+% this is suddenly a non-trivial operation.
+%
+% Though some might consider these as limitations, I think it's a benefit.
+% Text is inherently complicated, and forcing programmers to recognize that complexity forces
+% us to be more thoughtful about how we handle such data.
+  Some operations may require awareness of \textbf{canonical equivalence}. \\[1em]
+
+  \begin{lstlisting}[language=Rust]
+let a = "Amélie";
+let b = "Ame◌́lie";    // No space in here
+assert!(a == b)       // Does this assertion pass or fail?
+  \end{lstlisting}
+
 \end{frame}
 
 % ---------------------------
-\renewcommand{\currenttitle}{What about Python?}
-\begin{frame}{\currenttitle}
-\end{frame}
+\renewcommand{\currenttitle}{Reading / writing files}
+\begin{frame}[fragile]{\currenttitle}
+% We've kind of been talking about text encoding completely in the context of runtime memory
+% and things like that, but of course encoding applies to pretty much everything.
+%
+% You've probably opened a file before and just seen a bunch of gibberish.
+% It's possible that the file was simply a binary, but it's also possible that the file is in
+% a different encoding than what your editor or program expected.
+%
+% On Linux systems, files are UTF-8 by default.
+% On Windows systems, the default encoding is UTF-16.
+% This is something to keep in mind encodings when you're dealing with files.
+% 
+% Most programming languages allow you to specify the encoding when performing file I/O.
+% For example, in Python:
+  \textbf{Everything with text encoding of course applies to files and any kind of I/O.}
+  \\[2em]
 
-% ---------------------------
-\renewcommand{\currenttitle}{C and C++}
-\begin{frame}{\currenttitle}
+  Opening a file encoded in UTF-16 in Python: \\[1em]
+
+  \begin{lstlisting}[language=Python,numbers=left]
+with open('file.txt', encoding='utf-16', mode='r') as f:
+  for line in f:
+    print(line)
+  \end{lstlisting}
 \end{frame}
 
 % -----------------------------------------------
