@@ -23,8 +23,5 @@ ascii-decoder : listings/ascii-decoder.rs create-target
 utf8-decoder : listings/utf8-decoder.cpp create-target
 	$(CC) $(CPPFLAGS) -o $(TARGET)/$@ $<
 
-utf8-encoder : listings/utf8-encoder.cpp create-target
-	$(CC) $(CPPFLAGS) -o $(TARGET)/$@ $<
-
 create-target :
 	@mkdir -p $(TARGET)
