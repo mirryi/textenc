@@ -1,0 +1,81 @@
+% -----------------------------------------------
+% chktex-file 44
+\documentclass[../index.tex]{subfiles}
+
+% -----------------------------------------------
+
+\begin{document}
+
+% ---------------------------
+\renewcommand{\currenttitle}{Takeaways}
+\newcommand{\takeaway}[2]{%
+  \begin{block}{#1}
+    \vspace*{0.3em}
+    #2
+  \end{block}%
+}
+\begin{frame}{\currenttitle}
+% I hope you were able to learn something, if not everything we talked about.
+% If nothing else, I hope you were able to grasp these takeaways.
+%
+% As our discussion of Unicode has shown: text is complicated.
+% The writing systems that are derived from our natural language are varied and complicated,
+% so the way we handle these scripts is also complicated.
+%
+% And those complications make text processing non-trivial.
+% These last couple of slides especially have shown that many operations we like to think
+% are rather simple can turn out to be very complicated.
+%
+% It can be easy to look at everything and just throw up your hands and resign: it's too
+% difficult.
+% But as more and more people are connected by digital systems across the world, it's only
+% become more important that our code is compatible with writing systems from across the
+% world.
+%
+% Modern programs should all strive to be Unicode compatible.
+% The moment you start taking user input, Unicode becomes relevant.
+%
+% And it's not something that has to be incredibly difficult.
+% Unicode-aware libraries are widely available, and most modern languages incorporate tons
+% of functionality in their standard libraries.
+% We just need to be aware of these functionalities.
+%
+% I encourage everyone to explore the topic of text encoding in further detail.
+% We've really only scratched surface of Unicode's specifications.
+%
+% If nothing else, I urge you to try to get some kind of understanding of how Unicode is
+% supported in your programming language.
+  \takeaway{Text is complicated}{
+    Because natural language is complicated, the systems we develop to handle it are also
+    complicated.
+  }
+  
+  \takeaway{Text processing is non-trivial}{
+    Operations that may seem simple are often far more complex.
+  }
+  
+  \takeaway{Unicode matters}{
+    All modern programs should support text input in any language\textemdash{}all
+    modern programs should support Unicode.
+  }
+
+\end{frame}
+
+% ---------------------------
+\renewcommand{\sectiontitle}{Thanks!}
+\begin{frame}{\sectiontitle}
+% That's all for today.
+%
+% To get these slides, go to this url.
+% You can find the PDF in the Releases tab, or, if you're so inclined, you can build them
+% from source.
+%
+% If you have any questions, don't hesitate to ask.
+  Questions? \\[2em]
+
+  To get these slides: \url{https://github.com/Dophin2009/textenc}
+\end{frame}
+
+% -----------------------------------------------
+
+\end{document}
