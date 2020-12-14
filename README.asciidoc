@@ -1,25 +1,22 @@
 = Text Encoding
 
-A presentation on text encoding that reviews basic computer memory concepts 
-and covers ASCII and Unicode.
+A presentation on text encoding that reviews basic computer memory concepts and
+covers ASCII and Unicode.
 
-See Releases > Latest Development Build > assets > index.pdf for the latest 
-build.
+== Pre-Built Slides
 
-== Building
+See `Releases` > `Latest Development Build` > `assets` > `index.pdf` for the
+latest build.
 
-Requirements for main document (if not using Docker)
+== Building the Slides
+
+Requirements for main document (if not using Docker):
 
 * Python 3.6+
-** Alternatively, a TeX installation (see link:packages.txt[`packages.txt`] 
-   for list of extra required packages)
+** Alternatively, a TeX installation (see link:packages.txt[`packages.txt`] for
+   list of extra required packages)
 * R 4.0+
 * C++17 compiler (GCC/Clang/etc.)
-
-Other targets (see Makefile for details):
-
-* GNU Make
-* Rust compiler
 
 === Unix
 
@@ -76,7 +73,33 @@ To build with Docker:
 DOCKER_BUILDKIT=1 docker build --output target .  # build should be at target/index.pdf
 ----
 
+== Building Listings
+
+=== ASCII Decoder
+
+Requirements:
+
+* GNU Make (or check steps in Makefile)
+* Rust compiler (`rustc`)
+
+[source,shell]
+----
+make ascii-decoder
+----
+
+=== UTF-8 Decoder
+
+Requirements:
+
+* GNU Make (or check steps in Makefile)
+* C++17 compiler (GCC/Clang/etc.)
+
+[source,shell]
+----
+CC=<...> make utf8-decoder
+----
+
 == License
 
-This project is licensed under the MIT license. See link:LICENSE.txt[LICENSE.txt]
-for more details.
+This project is licensed under the MIT license. See link:LICENSE.txt[LICENSE.txt] for
+more details.
