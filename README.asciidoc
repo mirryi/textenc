@@ -5,8 +5,8 @@ covers ASCII and Unicode.
 
 == Pre-Built Slides
 
-See `Releases` > `Latest Development Build` > `assets` > `index.pdf` for the
-latest build.
+See `Releases > Latest Development Build > assets > index.pdf` for the latest
+build.
 
 == Building the Slides
 
