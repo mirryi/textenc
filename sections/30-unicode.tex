@@ -1300,34 +1300,6 @@ assert!(a == b)       // Does this assertion pass or fail?
 
 \end{frame}
 
-% ---------------------------
-\renewcommand{\currenttitle}{Reading / writing files}
-\begin{frame}[fragile]{\currenttitle}
-% We've kind of been talking about text encoding completely in the context of runtime memory
-% and things like that, but of course encoding applies to pretty much everything.
-%
-% You've probably opened a file before and just seen a bunch of gibberish.
-% It's possible that the file was simply a binary, but it's also possible that the file is in
-% a different encoding than what your editor or program expected.
-%
-% On Linux systems, files are UTF-8 by default.
-% On Windows systems, the default encoding is UTF-16.
-% This is something to keep in mind encodings when you're dealing with files.
-% 
-% Most programming languages allow you to specify the encoding when performing file I/O.
-% For example, in Python:
-  \textbf{Everything with text encoding of course applies to files and any kind of I/O.}
-  \\[2em]
-
-  Opening a file encoded in UTF-16 in Python: \\[1em]
-
-  \begin{lstlisting}[language=Python,numbers=left]
-with open('file.txt', encoding='utf-16', mode='r') as f:
-  for line in f:
-    print(line)
-  \end{lstlisting}
-\end{frame}
-
 % -----------------------------------------------
 
 \end{document}
