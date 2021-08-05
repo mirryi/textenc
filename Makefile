@@ -11,7 +11,7 @@ DOCKER ?= docker
 
 .PHONY : index index-docker ascii-decoder utf8-decoder utf8-encoder create-target
 
-index : create-target index.tex $(wildcard sections/*) references.bib
+index : create-target index.tex $(wildcard sections/*)
 	$(LATEXMK)
 
 index-docker : create-target index.tex $(wildcard sections/*) references.bib
