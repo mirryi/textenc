@@ -1,5 +1,5 @@
 @default_files = ('index.tex');
-$out_dir = 'target';
+$out_dir = 'build';
 
 $pdf_mode = 1;
 $pdflatex = 'TEXINPUTS=".:./sty:$TEXINPUTS" lualatex -interaction=nonstopmode -shell-escape';

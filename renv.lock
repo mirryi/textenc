@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.0.3",
+    "Version": "4.2.1",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -9,19 +9,12 @@
     ]
   },
   "Packages": {
-    "knitr": {
-      "Package": "knitr",
-      "Version": "1.28",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "915a6f0134cdbdf016d7778bc80b2eda"
-    },
     "Rcpp": {
       "Package": "Rcpp",
-      "Version": "1.0.5",
+      "Version": "1.0.9",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "125dc7a0ed375eb68c0ce533b48d291f"
+      "Hash": "e9c08b94391e9f3f97355841229124f2"
     },
     "renv": {
       "Package": "renv",
